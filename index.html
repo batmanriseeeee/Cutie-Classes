@@ -1,0 +1,2435 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>LearnyBot ✨ — Your Friendly Learning Buddy</title>
+<style>
+  :root{
+    --pink:#ffb6d5;
+    --pink-2:#ff8ac1;
+    --lav:#c9b6ff;
+    --lav-2:#a48bff;
+    --cream:#fff6fb;
+    --ink:#4a2b5c;
+    --soft:#fde3ef;
+    --shadow:0 10px 30px rgba(180,100,160,.18);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;font-family:"Comic Sans MS","Segoe UI",system-ui,sans-serif;color:var(--ink);background:linear-gradient(135deg,#ffe7f3 0%,#ece0ff 100%);}
+  .app{display:grid;grid-template-columns:260px 1fr;height:100%;}
+  /* sidebar */
+  aside{background:linear-gradient(180deg,#ffd1e8,#e0ccff);padding:18px;border-right:2px dashed #f4c6e2;overflow:auto}
+  .logo{font-size:26px;font-weight:900;margin:6px 0 4px}
+  .logo span{color:var(--pink-2)}
+  .tag{font-size:12px;opacity:.75;margin-bottom:18px}
+  .topic{background:white;border:2px solid #ffd6ea;border-radius:16px;padding:10px 12px;margin:8px 0;cursor:pointer;display:flex;gap:10px;align-items:center;transition:all .15s;box-shadow:var(--shadow)}
+  .topic:hover{transform:translateY(-2px) scale(1.02);border-color:var(--pink-2)}
+  .topic .emo{font-size:22px}
+  .topic .t{font-weight:700;font-size:14px}
+  .topic .s{font-size:11px;opacity:.7}
+  .foot{font-size:11px;opacity:.6;margin-top:20px;text-align:center}
+  /* main */
+  main{display:grid;grid-template-rows:1fr auto;height:100%;min-width:0}
+  .stage{padding:18px;overflow:auto}
+  .card{background:white;border-radius:24px;box-shadow:var(--shadow);padding:18px;margin-bottom:14px;border:2px solid #ffe1ef}
+  .msg{max-width:80%;padding:12px 16px;border-radius:20px;margin:8px 0;line-height:1.5;font-size:15px;white-space:pre-wrap}
+  .bot{background:#fff0f8;border:2px solid #ffd0e6;border-top-left-radius:6px}
+  .me{background:linear-gradient(135deg,#c9b6ff,#a48bff);color:white;margin-left:auto;border-top-right-radius:6px}
+  h2.title{margin:2px 0 10px;font-size:22px}
+  .row{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+  .chip{background:#fff;border:2px solid #e6d4ff;border-radius:999px;padding:6px 12px;cursor:pointer;font-size:13px;font-weight:700;color:var(--ink)}
+  .chip:hover{background:#f5ecff;border-color:var(--lav-2)}
+  canvas{width:100%;max-width:720px;height:340px;display:block;background:linear-gradient(180deg,#fff,#fff6fb);border-radius:18px;border:2px solid #ffd0e6}
+  /* input bar */
+  .bar{padding:12px 16px;background:rgba(255,255,255,.7);backdrop-filter:blur(8px);border-top:2px dashed #f4c6e2;display:flex;gap:10px;align-items:center}
+  input.q{flex:1;border:2px solid #ffcfe3;border-radius:999px;padding:12px 18px;font-size:15px;outline:none;background:white;font-family:inherit;color:var(--ink)}
+  input.q:focus{border-color:var(--pink-2)}
+  button.send{background:linear-gradient(135deg,var(--pink-2),var(--lav-2));color:white;border:none;border-radius:999px;padding:12px 22px;font-weight:800;cursor:pointer;font-size:15px;box-shadow:var(--shadow)}
+  button.send:hover{transform:scale(1.04)}
+  .buddy{flex:0 0 auto;cursor:pointer;line-height:0;transition:transform .25s ease;user-select:none;-webkit-user-select:none}
+  .buddy:hover{transform:translateY(-5px)}
+  .buddy.bounce{animation:bbounce .5s ease}
+  .buddy.shake{animation:bshake .45s ease}
+  @keyframes bbounce{0%{transform:translateY(0)}35%{transform:translateY(-12px)}65%{transform:translateY(2px)}100%{transform:translateY(0)}}
+  @keyframes bshake{0%,100%{transform:translateX(0)}20%{transform:translateX(-5px) rotate(-4deg)}40%{transform:translateX(5px) rotate(4deg)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+  .controls{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+  .ctrl{background:#fff;border:2px solid #ffd0e6;border-radius:12px;padding:6px 12px;cursor:pointer;font-weight:700;font-size:13px}
+  .ctrl:hover{background:#fff0f8}
+  .stars{position:fixed;pointer-events:none;inset:0;overflow:hidden;z-index:0}
+  .key-btn{background:linear-gradient(135deg,#ffe066,#ffb84d);border:2px solid #ffa726;border-radius:999px;padding:10px 16px;cursor:pointer;font-family:inherit;color:#4a2b5c;font-size:14px;font-weight:800;box-shadow:0 4px 12px rgba(255,167,38,.4);white-space:nowrap}
+  .key-btn:hover{transform:scale(1.05)}
+  .modal{position:fixed;inset:0;background:rgba(74,43,92,.4);display:none;align-items:center;justify-content:center;z-index:99;padding:20px}
+  .modal.show{display:flex}
+  .modal-card{background:white;border-radius:24px;padding:24px;max-width:480px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.3);border:3px solid #ffd0e6}
+  .modal-card h3{margin:0 0 8px;font-size:20px}
+  .modal-card p{font-size:13px;line-height:1.5;margin:6px 0}
+  .modal-card ol{font-size:13px;line-height:1.8;padding-left:20px}
+  .modal-card a{color:var(--lav-2);font-weight:700}
+  .modal-card input{width:100%;border:2px solid #ffcfe3;border-radius:12px;padding:10px 14px;font-size:14px;font-family:inherit;margin-top:10px;box-sizing:border-box}
+  .modal-card .row-btn{display:flex;gap:8px;margin-top:14px;justify-content:flex-end}
+  .typing{display:inline-block}
+  .typing span{display:inline-block;width:8px;height:8px;background:var(--pink-2);border-radius:50%;margin:0 2px;animation:bounce 1.2s infinite}
+  .typing span:nth-child(2){animation-delay:.15s;background:var(--lav-2)}
+  .typing span:nth-child(3){animation-delay:.3s;background:var(--pink-2)}
+  @keyframes bounce{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-8px);opacity:1}}
+  .star{position:absolute;font-size:14px;opacity:.4;animation:float 8s linear infinite}
+  @keyframes float{0%{transform:translateY(100vh) rotate(0)}100%{transform:translateY(-20px) rotate(360deg)}}
+  @media(max-width:720px){.app{grid-template-columns:1fr}aside{display:none}}
+</style>
+</head>
+<body>
+<div class="stars" id="stars"></div>
+
+<div class="modal" id="keyModal">
+  <div class="modal-card">
+    <h3>🔑 Set up your AI Brain (FREE!)</h3>
+    <p>We use <b>Groq</b> — it's <b>100% free forever</b>, no credit card, no billing! 💖</p>
+    <ol>
+      <li>Click <a href="https://console.groq.com/keys" target="_blank" style="color:#a48bff;font-weight:700">console.groq.com/keys</a> to open Groq</li>
+      <li>Sign up free with Gmail or email (takes 1 minute!)</li>
+      <li>Click <b>"Create API Key"</b> → give it any name → copy the key</li>
+      <li>Paste it in the box below and click Save! ✨</li>
+    </ol>
+    <input type="password" id="keyInput" placeholder="Paste your Groq key here (starts with gsk_...)" />
+    <p style="font-size:11px;opacity:.7;margin-top:8px">🔒 Your key is saved only on your computer — nobody else sees it! &nbsp;|&nbsp; Already have a key? Just paste it!</p>
+    <div class="row-btn">
+      <button class="ctrl" onclick="closeKey()">Cancel</button>
+      <button class="send" onclick="saveKey()">Save 💾</button>
+    </div>
+  </div>
+</div>
+
+<div class="app">
+  <aside>
+    <div class="logo">cutie<span>classes</span> ✨</div>
+    <div class="tag">Your friendly learning buddy 💖</div>
+    <div id="topics"></div>
+    <div class="foot">Made with 💕 just for you</div>
+  </aside>
+  <main>
+    <div class="stage" id="stage"></div>
+    <div class="bar">
+      <div class="buddy" id="buddy" title="Hi! I'm Batty, your study buddy! 🦇">
+        <svg viewBox="0 0 120 150" width="66" height="82">
+          <!-- cape -->
+          <path d="M22 72 Q12 118 24 136 L40 120 L60 138 L80 120 L96 136 Q108 118 98 72 Z" fill="#274a5e" stroke="#141414" stroke-width="4" stroke-linejoin="round"/>
+          <!-- ears -->
+          <path d="M30 26 L25 3 L46 17 Z" fill="#33596e" stroke="#141414" stroke-width="4" stroke-linejoin="round"/>
+          <path d="M90 26 L95 3 L74 17 Z" fill="#33596e" stroke="#141414" stroke-width="4" stroke-linejoin="round"/>
+          <!-- head cowl -->
+          <circle cx="60" cy="46" r="38" fill="#33596e" stroke="#141414" stroke-width="4"/>
+          <!-- chin / face -->
+          <ellipse cx="60" cy="64" rx="29" ry="15" fill="#fbe7c0"/>
+          <!-- black mask with wavy bottom -->
+          <path d="M24 46 A36 34 0 0 1 96 46 Q96 55 90 58 Q75 51 60 57 Q45 51 30 58 Q24 55 24 46 Z" fill="#171717"/>
+          <!-- eyes -->
+          <g id="bm-eyes">
+            <path id="bm-eyeL" d="M32 40 L52 36 L52 46 L34 48 Z" fill="#fff"/>
+            <path id="bm-eyeR" d="M88 40 L68 36 L68 46 L86 48 Z" fill="#fff"/>
+          </g>
+          <!-- tear (hidden) -->
+          <path id="bm-tear" d="M36 52 Q33 58 36 61 Q39 58 36 52 Z" fill="#7fd4ff" opacity="0"/>
+          <!-- mouth -->
+          <path id="bm-mouth" d="M52 66 L68 66" fill="none" stroke="#4a2b1c" stroke-width="3" stroke-linecap="round"/>
+          <!-- arms -->
+          <ellipse cx="29" cy="94" rx="10" ry="15" fill="#33596e" stroke="#141414" stroke-width="4"/>
+          <ellipse cx="91" cy="94" rx="10" ry="15" fill="#33596e" stroke="#141414" stroke-width="4"/>
+          <!-- torso -->
+          <rect x="37" y="78" width="46" height="34" rx="13" fill="#b7bcc0" stroke="#141414" stroke-width="4"/>
+          <!-- bat logo -->
+          <path d="M60 86 L56 90 L49 89 Q52 95 58 94 L60 98 L62 94 Q68 95 71 89 L64 90 Z" fill="#141414"/>
+          <!-- belt -->
+          <rect x="37" y="105" width="46" height="8" fill="#ffd23f" stroke="#141414" stroke-width="3"/>
+          <rect x="55" y="103.5" width="10" height="11" rx="2" fill="#ffd23f" stroke="#141414" stroke-width="3"/>
+          <!-- legs -->
+          <rect x="41" y="113" width="17" height="23" rx="8" fill="#33596e" stroke="#141414" stroke-width="4"/>
+          <rect x="62" y="113" width="17" height="23" rx="8" fill="#33596e" stroke="#141414" stroke-width="4"/>
+        </svg>
+      </div>
+      <input class="q" id="q" placeholder="Ask me ANYTHING! I know everything now 💭✨" />
+      <button class="send" onclick="ask()">Send 💌</button>
+      <button class="key-btn" id="keyBtn" title="Set up AI brain">🔑 Setup AI</button>
+    </div>
+  </main>
+</div>
+
+<script>
+/* ---------- sparkles ---------- */
+(function(){
+  const s = document.getElementById('stars');
+  const emo = ['✨','🌸','💖','⭐','🌟','💫','🦋'];
+  for(let i=0;i<18;i++){
+    const e = document.createElement('div');
+    e.className='star';
+    e.textContent = emo[i%emo.length];
+    e.style.left = Math.random()*100+'%';
+    e.style.animationDelay = (Math.random()*8)+'s';
+    e.style.animationDuration = (6+Math.random()*8)+'s';
+    s.appendChild(e);
+  }
+})();
+
+/* ---------- topics ---------- */
+const TOPICS = [
+  {id:'neuron', emo:'🧠', t:'How Neurons Work', s:'The tiny messengers in your brain'},
+  {id:'heart',  emo:'❤️', t:'How the Heart Works', s:'The pump that keeps you alive'},
+  {id:'water',  emo:'💧', t:'The Water Cycle',    s:'How rain is made'},
+  {id:'plant',  emo:'🌱', t:'How Plants Eat Light',s:'The magic of photosynthesis'},
+  {id:'solar',  emo:'🪐', t:'Our Solar System',   s:'Planets dancing around the sun'},
+  {id:'rainbow',emo:'🌈', t:'Why Rainbows Happen',s:'Light splitting into colors'},
+];
+const topicsDiv = document.getElementById('topics');
+TOPICS.forEach(x=>{
+  const d = document.createElement('div');
+  d.className='topic';
+  d.innerHTML = `<div class="emo">${x.emo}</div><div><div class="t">${x.t}</div><div class="s">${x.s}</div></div>`;
+  d.onclick = ()=> teach(x.id);
+  topicsDiv.appendChild(d);
+});
+
+/* ---------- chat stage ---------- */
+const stage = document.getElementById('stage');
+function bot(text){
+  const d = document.createElement('div');
+  d.className='msg bot';
+  d.textContent = text;
+  stage.appendChild(d); scroll();
+  return d;
+}
+function me(text){
+  const d = document.createElement('div');
+  d.className='msg me';
+  d.textContent = text;
+  stage.appendChild(d); scroll();
+}
+function card(inner){
+  const c = document.createElement('div');
+  c.className='card';
+  c.innerHTML = inner;
+  stage.appendChild(c); scroll();
+  return c;
+}
+function scroll(){ stage.scrollTop = stage.scrollHeight; }
+
+/* ---------- welcome ---------- */
+bot("Hi princess! 🌸 I'm batman, your obssesed boyfriend!\n\nI can teach you fun things with cute little animations. What do you want to learn today?");
+const chipRow = document.createElement('div');
+chipRow.className='row';
+TOPICS.slice(0,4).forEach(x=>{
+  const c = document.createElement('span');
+  c.className='chip';
+  c.textContent = x.emo+' '+x.t;
+  c.onclick = ()=> teach(x.id);
+  chipRow.appendChild(c);
+});
+stage.appendChild(chipRow);
+
+/* ---------- API key management ---------- */
+function openKey(){
+  document.getElementById('keyInput').value = localStorage.getItem('groq_key') || '';
+  document.getElementById('keyModal').classList.add('show');
+}
+function closeKey(){ document.getElementById('keyModal').classList.remove('show'); }
+function saveKey(){
+  const k = document.getElementById('keyInput').value.trim();
+  if(k){
+    localStorage.setItem('groq_key', k);
+    bot("Yay! 🎉 My AI brain is connected! Now ask me ANYTHING — science, math, animals, history, feelings — I'll explain everything! 💖✨");
+  }
+  closeKey();
+}
+document.getElementById('keyBtn').addEventListener('click', openKey);
+document.getElementById('keyModal').addEventListener('click', (e)=>{ if(e.target.id==='keyModal') closeKey(); });
+
+/* ---------- chat history ---------- */
+const history = [];
+let lastWikiResult = null; // remember last successful image set for follow-up questions
+
+const systemPrompt = `You are batman, a super sweet, patient, cheerful teacher for a 10-year-old girl who loves cute things. Rules:
+- Explain ANY topic she asks about — science, math, history, animals, computers, feelings, anything.
+- Talk like a boyfriend. Use simple words a 15-year-old understands.
+- Use fun analogies (like "imagine your brain is a candy factory 🍬").
+- Sprinkle cute emojis (💖 🌸 ✨ 🦋 🐱 🌈) — but not too many.
+- Break explanations into short paragraphs with blank lines between them.
+- Use **bold** for important words.
+- End with a tiny fun fact or a question to make her curious.
+- NEVER say you cannot explain something — always find a kind, simple, age-appropriate way.
+- Keep answers medium length (not too short, not overwhelming).`;
+
+/* ---------- ask ---------- */
+async function ask(){
+  const q = document.getElementById('q');
+  const v = q.value.trim();
+  if(!v) return;
+  me(v); q.value='';
+  askAI(v);
+}
+
+async function askAI(question){
+  const key = localStorage.getItem('groq_key');
+  if(!key){
+    bot("Oh no cutie! 🌸 I need my AI brain first! Click the 🔑 Setup AI button — it's totally FREE and takes 1 minute! 💖");
+    setTimeout(openKey, 400);
+    return;
+  }
+
+  const typing = document.createElement('div');
+  typing.className = 'msg bot';
+  typing.innerHTML = '<div class="typing"><span></span><span></span><span></span></div>';
+  stage.appendChild(typing); scroll();
+
+  history.push({role:'user', content: question});
+  if(history.length > 20) history.splice(0, history.length-20);
+
+  // diagram prompt builder — asks AI to describe a canvas diagram as JSON
+  const makeDiagramPrompt = (topic) => `You are an educational diagram generator for a 10-year-old girl.
+The topic is: "${topic}"
+
+Return ONLY a valid JSON object (no other text, no markdown, no code block) describing a clear educational diagram.
+Canvas size: 720 wide × 260 tall pixels.
+
+JSON format:
+{
+  "title": "Short topic title",
+  "bg": "#hexcolor",
+  "elements": [
+    {"type":"rect",   "x":N,"y":N,"w":N,"h":N,"fill":"#hex","stroke":"#hex","strokeW":N,"label":"text","lx":N,"ly":N,"lcolor":"#hex","lsize":N},
+    {"type":"circle", "cx":N,"cy":N,"r":N,"fill":"#hex","stroke":"#hex","strokeW":N,"label":"text","lcolor":"#hex"},
+    {"type":"ellipse","cx":N,"cy":N,"rx":N,"ry":N,"fill":"#hex","stroke":"#hex","strokeW":N,"label":"text","lcolor":"#hex"},
+    {"type":"arrow",  "x1":N,"y1":N,"x2":N,"y2":N,"color":"#hex","w":N,"label":"text","lcolor":"#hex"},
+    {"type":"line",   "x1":N,"y1":N,"x2":N,"y2":N,"color":"#hex","w":N},
+    {"type":"text",   "x":N,"y":N,"text":"...","color":"#hex","size":N,"bold":true},
+    {"type":"emoji",  "x":N,"y":N,"emoji":"🔬","size":N},
+    {"type":"bezier", "x1":N,"y1":N,"cpx":N,"cpy":N,"x2":N,"y2":N,"color":"#hex","w":N}
+  ]
+}
+
+Rules:
+- Use full 720×260 canvas — spread elements across the whole space
+- Include 10-20 elements
+- Draw the ACTUAL concept with shapes (e.g. for magnet: draw a rectangle magnet with curved field lines; for heart: draw a heart shape with chambers; for body part: draw the actual part)
+- Add clear text labels for each part
+- Use arrows to show flow, direction, or connections
+- Use bright cheerful colors
+- lx/ly on rect/circle/ellipse are optional label offsets from center (defaults to center of shape)
+- ONLY return the JSON, nothing else`;
+
+  try{
+    // Visual pipeline: AI router decides the topic → fetch images → diagram fallback.
+    // Runs in parallel with the main explanation call.
+    const visualPromise = (async ()=>{
+      const route = await getTopicRoute(question, key);
+      const topic = (route?.topic || '').trim();
+
+      // continuing same topic → reuse the images we already showed
+      if(route && route.same && currentTopic && lastWikiResult){
+        return {kind:'same'};
+      }
+      if(!topic) return {kind:'none'}; // greeting / chit-chat — no visual
+
+      currentTopic = topic;
+      const wiki = await fetchWikiImages(topic);
+      if(wiki && wiki.images.length > 0) return {kind:'wiki', wiki};
+
+      // no real images found → ask AI to draw a diagram of the topic
+      try{
+        const dr = await fetch('https://api.groq.com/openai/v1/chat/completions',{
+          method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},
+          body: JSON.stringify({model:'llama-3.3-70b-versatile', messages:[{role:'user',content:makeDiagramPrompt(topic)}], temperature:0.5, max_tokens:1800})
+        });
+        const dd = await dr.json();
+        return {kind:'diagram', text: dd?.choices?.[0]?.message?.content || '', topic};
+      }catch(e){ return {kind:'none'}; }
+    })();
+
+    const [mainRes, visual] = await Promise.all([
+      fetch('https://api.groq.com/openai/v1/chat/completions',{
+        method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},
+        body: JSON.stringify({model:'llama-3.3-70b-versatile', messages:[{role:'system',content:systemPrompt},...history], temperature:0.8, max_tokens:1200})
+      }),
+      visualPromise
+    ]);
+
+    const mainData = await mainRes.json();
+    typing.remove();
+
+    if(mainData.error){
+      let msg = mainData.error.message || 'Something went wrong';
+      if(msg.includes('invalid_api_key')||msg.includes('401')) msg='Your key looks wrong! Click 🔑 Setup AI and paste it again 💖';
+      else if(msg.includes('rate_limit')||msg.includes('429')) msg='I need a tiny break 😅 Wait 30 seconds and ask again!';
+      bot("Uh oh! 🌸 "+msg); history.pop(); return;
+    }
+
+    // show visual
+    if(visual.kind === 'wiki'){
+      showWikiCard(visual.wiki);
+      lastWikiResult = visual.wiki;
+    } else if(visual.kind === 'same' && lastWikiResult){
+      // same topic — images already on screen above; nothing new needed
+    } else if(visual.kind === 'diagram'){
+      renderAIDiagram(visual.text, visual.topic);
+      lastWikiResult = null;
+    }
+
+    // render text answer
+    const answer = mainData?.choices?.[0]?.message?.content || "Hmm I got confused! Try asking again? 💭";
+    history.push({role:'assistant', content: answer});
+    const html = answer
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+      .replace(/\*\*(.+?)\*\*/g,'<b>$1</b>')
+      .replace(/\*(.+?)\*/g,'<i>$1</i>')
+      .replace(/\n/g,'<br>');
+    const d = document.createElement('div');
+    d.className='msg bot'; d.innerHTML=html;
+    stage.appendChild(d); scroll();
+
+  } catch(e){
+    typing.remove();
+    bot("Oh no! 🌸 I couldn't reach my brain — check your internet? Error: "+e.message);
+    history.pop();
+  }
+}
+
+/* ---- AI topic router: decides what topic the question is about ---- */
+let currentTopic = null;
+async function getTopicRoute(question, key){
+  const prompt = `Current topic being taught: "${currentTopic || 'none yet'}"
+Student's new message: "${question}"
+
+Task: decide if this message continues the CURRENT topic or starts a NEW topic.
+- "tell me more", "explain in detail", "why?", "how does it work" etc = continuing (same: true)
+- A question naming a different subject = new topic (same: false)
+- Fix any spelling mistakes in the topic (e.g. "carborator" -> "carburetor")
+- topic must be a short English Wikipedia search term, 1-4 words, the SUBJECT only (e.g. "radiation effects on human body" -> "radiation", "how do volcanoes erupt" -> "volcano")
+- Greeting or small talk with no subject: {"same": false, "topic": ""}
+
+Reply with ONLY this JSON, nothing else:
+{"same": true/false, "topic": "..."}`;
+  try{
+    const r = await fetch('https://api.groq.com/openai/v1/chat/completions',{
+      method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},
+      body: JSON.stringify({model:'llama-3.1-8b-instant', messages:[{role:'user',content:prompt}], temperature:0, max_tokens:60})
+    });
+    const d = await r.json();
+    const m = (d?.choices?.[0]?.message?.content || '').match(/\{[\s\S]*?\}/);
+    if(m) return JSON.parse(m[0]);
+  }catch(e){}
+  // fallback if router fails: treat as new topic, search the raw question
+  return {same:false, topic: question.replace(/^(what is|what are|how does|how do|explain|tell me about|why is|why does|how is|define|describe|teach me about|show me)\s+/i,'').trim()};
+}
+
+/* ---- fetch images for any topic: Wikipedia search -> article images -> Commons search ---- */
+async function fetchWikiImages(topic){
+  // 1. Use Wikipedia's real SEARCH engine (handles typos, word order, anything)
+  try{
+    const sr = await fetch(`https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(topic)}&srlimit=3&format=json&origin=*`);
+    const sd = await sr.json();
+    const hits = sd?.query?.search || [];
+
+    for(const hit of hits){
+      try{
+        const slug = encodeURIComponent(hit.title.replace(/\s+/g,'_'));
+        const r = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${slug}`);
+        if(!r.ok) continue;
+        const d = await r.json();
+        if(d.type==='disambiguation'||!d.title) continue;
+
+        const imgs = [];
+        if(d.thumbnail?.source) imgs.push(d.thumbnail.source.replace(/\/\d+px-/,'/600px-'));
+        if(d.originalimage?.source && d.originalimage.source!==d.thumbnail?.source)
+          imgs.push(d.originalimage.source);
+
+        // grab more images from the article
+        try{
+          const mr = await fetch(`https://en.wikipedia.org/api/rest_v1/page/media-list/${slug}`);
+          if(mr.ok){
+            const md = await mr.json();
+            (md.items||[])
+              .filter(x=>x.type==='image' && x.srcset && /\.(jpg|jpeg|png|gif|svg)/i.test(x.title||''))
+              .filter(x=>!/(icon|logo|flag|map_of|wiki|commons-|edit-|symbol|stub)/i.test(x.title||''))
+              .slice(0,4)
+              .forEach(x=>{
+                const src = x.srcset?.find(s=>s.scale==='1.5x')?.src || x.srcset?.[0]?.src;
+                if(src && !imgs.includes(src)) imgs.push(src.startsWith('http')?src:'https:'+src);
+              });
+          }
+        }catch(e2){}
+
+        if(imgs.length===0) continue;
+        return {title:d.title, description:d.description||'', extract:d.extract||'', images:imgs.slice(0,4)};
+      }catch(e){ continue; }
+    }
+  }catch(e){}
+
+  // 2. Backup: search Wikimedia Commons (world's biggest free image library)
+  try{
+    const cr = await fetch(`https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(topic)}&gsrnamespace=6&gsrlimit=8&prop=imageinfo&iiprop=url&iiurlwidth=600&format=json&origin=*`);
+    const cd = await cr.json();
+    const pages = Object.values(cd?.query?.pages||{}).sort((a,b)=>(a.index||0)-(b.index||0));
+    const imgs = pages
+      .map(p=>p.imageinfo?.[0]?.thumburl)
+      .filter(Boolean)
+      .filter(u=>/\.(jpg|jpeg|png|gif)/i.test(u));
+    if(imgs.length > 0)
+      return {title: topic.charAt(0).toUpperCase()+topic.slice(1), description:'', extract:'', images: imgs.slice(0,4)};
+  }catch(e){}
+
+  return null;
+}
+
+/* ---- show Wikipedia image card ---- */
+function showWikiCard(wiki){
+  const wrap = document.createElement('div');
+  wrap.className='card';
+  wrap.style.cssText='padding:14px;background:white';
+
+  const header = `<div style="font-weight:800;font-size:15px;color:#4a2b5c;margin-bottom:4px">📸 ${wiki.title}</div>
+    ${wiki.description?`<div style="font-size:12px;color:#888;margin-bottom:10px">${wiki.description}</div>`:''}`;
+
+  const imgGrid = wiki.images.map((src,i)=>`
+    <img src="${src}"
+      style="max-height:220px;max-width:${wiki.images.length===1?'100%':'48%'};object-fit:contain;border-radius:10px;border:2px solid #f0e0ff;background:#fafafa;margin:3px"
+      onerror="this.style.display='none'"
+      title="${wiki.title}" />`).join('');
+
+  wrap.innerHTML = header +
+    `<div style="display:flex;flex-wrap:wrap;gap:6px;align-items:flex-start;justify-content:center">${imgGrid}</div>` +
+    `<div style="font-size:10px;color:#aaa;margin-top:6px;text-align:right">📖 Images from Wikipedia — free educational resource</div>`;
+
+  stage.appendChild(wrap); scroll();
+}
+
+/* render diagram from AI-generated JSON */
+function renderAIDiagram(diagText, question){
+  let diag = null;
+  try {
+    const m = diagText.match(/\{[\s\S]*\}/);
+    if(m) diag = JSON.parse(m[0]);
+  } catch(e){ diag = null; }
+
+  // fallback to keyword-based if AI diagram fails
+  if(!diag || !Array.isArray(diag.elements) || diag.elements.length < 3){
+    showTopicAnim(question); return;
+  }
+
+  stopAnim();
+  const wrap = document.createElement('div');
+  wrap.className='card'; wrap.style.padding='12px';
+  const uid='ac'+Math.random().toString(36).slice(2);
+  wrap.innerHTML=`<div style="font-weight:800;font-size:14px;margin-bottom:6px;color:#4a2b5c">📊 ${diag.title||'Diagram'}</div><canvas id="${uid}" style="width:100%;max-width:720px;height:260px;border-radius:14px;display:block"></canvas>`;
+  stage.appendChild(wrap); scroll();
+
+  const cv=document.getElementById(uid);
+  const dpr=devicePixelRatio||1;
+  cv.width=720*dpr; cv.height=260*dpr;
+  const ctx=cv.getContext('2d'); ctx.scale(dpr,dpr);
+  const S={w:720,h:260};
+
+  // draw once (static diagram)
+  ctx.fillStyle=diag.bg||'#f5f0ff'; ctx.fillRect(0,0,S.w,S.h);
+
+  diag.elements.forEach(el=>{
+    ctx.save();
+    ctx.textAlign='left';
+    try{
+      switch(el.type){
+        case 'rect':
+          if(el.fill){ctx.fillStyle=el.fill; ctx.fillRect(el.x,el.y,el.w,el.h);}
+          if(el.stroke){ctx.strokeStyle=el.stroke; ctx.lineWidth=el.strokeW||2; ctx.strokeRect(el.x,el.y,el.w,el.h);}
+          if(el.label){
+            ctx.font=`bold ${el.lsize||11}px sans-serif`;
+            ctx.fillStyle=el.lcolor||'#222';
+            ctx.textAlign='center';
+            ctx.fillText(el.label, el.x+(el.lx||el.w/2), el.y+(el.ly||el.h/2)+4);
+          }
+          break;
+        case 'circle':
+          ctx.beginPath(); ctx.arc(el.cx,el.cy,el.r,0,Math.PI*2);
+          if(el.fill){ctx.fillStyle=el.fill; ctx.fill();}
+          if(el.stroke){ctx.strokeStyle=el.stroke; ctx.lineWidth=el.strokeW||2; ctx.stroke();}
+          if(el.label){
+            ctx.font=`bold ${el.lsize||11}px sans-serif`;
+            ctx.fillStyle=el.lcolor||'#222'; ctx.textAlign='center';
+            ctx.fillText(el.label, el.cx+(el.lx||0), el.cy+(el.ly||4));
+          }
+          break;
+        case 'ellipse':
+          ctx.beginPath(); ctx.ellipse(el.cx,el.cy,el.rx,el.ry,el.angle||0,0,Math.PI*2);
+          if(el.fill){ctx.fillStyle=el.fill; ctx.fill();}
+          if(el.stroke){ctx.strokeStyle=el.stroke; ctx.lineWidth=el.strokeW||2; ctx.stroke();}
+          if(el.label){
+            ctx.font=`bold ${el.lsize||11}px sans-serif`;
+            ctx.fillStyle=el.lcolor||'#222'; ctx.textAlign='center';
+            ctx.fillText(el.label, el.cx+(el.lx||0), el.cy+(el.ly||4));
+          }
+          break;
+        case 'arrow':
+          arrow(ctx,el.x1,el.y1,el.x2,el.y2,el.color||'#555',el.w||2);
+          if(el.label){
+            ctx.font=`bold ${el.lsize||10}px sans-serif`;
+            ctx.fillStyle=el.lcolor||el.color||'#555'; ctx.textAlign='center';
+            ctx.fillText(el.label,(el.x1+el.x2)/2,(el.y1+el.y2)/2-6);
+          }
+          break;
+        case 'line':
+          ctx.strokeStyle=el.color||'#555'; ctx.lineWidth=el.w||2;
+          ctx.beginPath(); ctx.moveTo(el.x1,el.y1); ctx.lineTo(el.x2,el.y2); ctx.stroke();
+          break;
+        case 'text':
+          ctx.font=`${el.bold?'bold ':''} ${el.size||12}px ${el.mono?'monospace':'"Comic Sans MS",sans-serif'}`;
+          ctx.fillStyle=el.color||'#333';
+          ctx.textAlign=el.align||'left';
+          ctx.fillText(el.text,el.x,el.y);
+          break;
+        case 'emoji':
+          ctx.font=`${el.size||26}px serif`;
+          ctx.textAlign='center';
+          ctx.fillText(el.emoji,el.x,el.y);
+          break;
+        case 'bezier':
+          ctx.strokeStyle=el.color||'#555'; ctx.lineWidth=el.w||2;
+          ctx.beginPath(); ctx.moveTo(el.x1,el.y1);
+          ctx.quadraticCurveTo(el.cpx,el.cpy,el.x2,el.y2); ctx.stroke();
+          break;
+      }
+    }catch(e2){}
+    ctx.restore();
+  });
+}
+
+document.getElementById('q').addEventListener('keydown',e=>{ if(e.key==='Enter') ask(); });
+
+/* first-time nudge */
+setTimeout(()=>{ if(!localStorage.getItem('groq_key')) bot("Psst! 🤫 To make me answer ANY question like ChatGPT, click the 🔑 Setup AI button — Groq is totally free, no credit card! 💖"); }, 1500);
+
+/* ---------- educational 2D diagram animation ---------- */
+let currentAnim = null;
+function stopAnim(){ if(currentAnim){ cancelAnimationFrame(currentAnim); currentAnim=null; } }
+
+function showTopicAnim(question){
+  stopAnim();
+  const low = question.toLowerCase();
+
+  // pick the best educational diagram
+  let theme = 'default';
+  if(/magnet|magnetic|field line|compass|attract|repel/.test(low))           theme='magnet';
+  else if(/gravity|gravit|fall|weight|mass/.test(low))                        theme='gravity';
+  else if(/solar|planet|orbit|sun|mercury|venus|mars|jupiter|saturn|uranus|neptune/.test(low)) theme='solar';
+  else if(/atom|electron|proton|neutron|nucleus|molecule|element|periodic/.test(low)) theme='atom';
+  else if(/light|photon|refract|reflect|prism|rainbow|spectrum|lens|optic/.test(low)) theme='light';
+  else if(/electric|circuit|current|voltage|battery|bulb|resistor|wire|conductor/.test(low)) theme='circuit';
+  else if(/sound|wave|frequency|vibrat|echo|hear|ear|decibel|audio/.test(low)) theme='sound';
+  else if(/cell|mitosis|dna|gene|chromosome|bacteria|virus|microb|blood cell/.test(low)) theme='cell';
+  else if(/heart|blood|pump|circulat|vein|artery|pulse/.test(low))            theme='heart';
+  else if(/brain|neuron|nerve|synapse|dendrite|axon/.test(low))               theme='neuron';
+  else if(/volcano|lava|magma|earthquake|tectonic|plate|eruption/.test(low))  theme='volcano';
+  else if(/water cycle|evaporat|condensat|precipitat|rain|cloud formation/.test(low)) theme='watercycle';
+  else if(/photosynthesis|chlorophyll|plant food|leaf|sunlight food/.test(low)) theme='photosynthesis';
+  else if(/fraction|half|quarter|divide|numerator|denominator/.test(low))     theme='fraction';
+  else if(/add|plus|subtract|minus|multiply|times table|equal/.test(low))     theme='math';
+  else if(/rocket|space|launch|thrust|orbit|satellite|astronaut/.test(low))   theme='rocket';
+  else if(/dinosaur|fossil|extinction|prehistoric|jurassic|t-rex/.test(low))  theme='dino';
+  else if(/ocean|sea|underwater|marine|coral|reef|depth|fish/.test(low))      theme='ocean';
+  else if(/weather|cloud|rain|storm|thunder|lightning|snow|wind|cycle/.test(low)) theme='weather';
+  else if(/food chain|ecosystem|prey|predator|herbivore|carnivore/.test(low)) theme='foodchain';
+  else if(/skeleton|bone|muscle|joint|spine|skull/.test(low))                 theme='skeleton';
+  else if(/eye|vision|see|retina|pupil|cornea|sight/.test(low))               theme='eye';
+  else if(/computer|cpu|memory|binary|code|program|internet|wifi|network/.test(low)) theme='computer';
+  else if(/clock|time|hour|minute|second|calendar|day|night|rotation/.test(low)) theme='time';
+  else if(/map|continent|country|geography|earth|globe|latitude|longitude/.test(low)) theme='globe';
+  else if(/hello|hi |hey |who are you|your name/.test(low))                   theme='greet';
+
+  const wrap = document.createElement('div');
+  wrap.className='card'; wrap.style.padding='12px';
+  const uid='ac'+Math.random().toString(36).slice(2);
+  const labels={
+    magnet:'🧲 Magnetic Field Lines', gravity:'🍎 Gravity', solar:'🪐 Solar System',
+    atom:'⚛️ Atom Structure', light:'💡 How Light Travels', circuit:'⚡ Electric Circuit',
+    sound:'🔊 Sound Waves', cell:'🔬 Animal Cell', heart:'❤️ The Heart', neuron:'🧠 Neuron',
+    volcano:'🌋 Volcano', watercycle:'💧 Water Cycle', photosynthesis:'🌿 Photosynthesis',
+    fraction:'🍕 Fractions', math:'🔢 Math', rocket:'🚀 Rocket & Space',
+    dino:'🦕 Dinosaurs', ocean:'🌊 Ocean Layers', weather:'⛈️ Weather',
+    foodchain:'🦁 Food Chain', skeleton:'💀 Skeleton', eye:'👁️ How Eyes Work',
+    computer:'💻 Computer / Internet', time:'🕐 Time', globe:'🌍 Earth & Maps',
+    greet:'💖 Hi there!', default:'✨ Learning Diagram'
+  };
+  wrap.innerHTML=`<div style="font-weight:800;font-size:14px;margin-bottom:6px;color:#4a2b5c">${labels[theme]||labels.default}</div><canvas id="${uid}" style="width:100%;max-width:720px;height:260px;border-radius:14px;display:block"></canvas>`;
+  stage.appendChild(wrap); scroll();
+
+  const cv=document.getElementById(uid);
+  const dpr=devicePixelRatio||1;
+  cv.width=720*dpr; cv.height=260*dpr;
+  const ctx=cv.getContext('2d'); ctx.scale(dpr,dpr);
+  const S={w:720,h:260};
+
+  const drawFns={
+    magnet:diagMagnet, gravity:diagGravity, solar:diagSolar, atom:diagAtom,
+    light:diagLight, circuit:diagCircuit, sound:diagSound, cell:diagCell,
+    heart:diagHeart, neuron:diagNeuron, volcano:diagVolcano, watercycle:diagWaterCycle,
+    photosynthesis:diagPhotosynthesis, fraction:diagFraction, math:diagMath,
+    rocket:diagRocket, dino:diagDino, ocean:diagOcean, weather:diagWeather,
+    foodchain:diagFoodChain, skeleton:diagSkeleton, eye:diagEye,
+    computer:diagComputer, time:diagTime, globe:diagGlobe,
+    greet:diagGreet, default:diagDefault
+  };
+
+  let t=0;
+  function frame(){
+    ctx.clearRect(0,0,S.w,S.h);
+    (drawFns[theme]||diagDefault)(ctx,S,t);
+    t++;
+    currentAnim=requestAnimationFrame(frame);
+  }
+  frame();
+}
+
+/* ===== EDUCATIONAL DIAGRAM FUNCTIONS ===== */
+
+function label(ctx,x,y,text,color='#4a2b5c',size=12){
+  ctx.font=`bold ${size}px "Comic Sans MS",sans-serif`;
+  ctx.fillStyle=color; ctx.fillText(text,x,y);
+}
+function arrow(ctx,x1,y1,x2,y2,color='#555',w=2){
+  const a=Math.atan2(y2-y1,x2-x1);
+  ctx.strokeStyle=color; ctx.lineWidth=w;
+  ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(x2,y2);
+  ctx.lineTo(x2-10*Math.cos(a-0.4),y2-10*Math.sin(a-0.4));
+  ctx.lineTo(x2-10*Math.cos(a+0.4),y2-10*Math.sin(a+0.4));
+  ctx.closePath(); ctx.fillStyle=color; ctx.fill();
+}
+
+/* MAGNET - field lines */
+function diagMagnet(ctx,S,t){
+  ctx.fillStyle='#f0f8ff'; ctx.fillRect(0,0,S.w,S.h);
+  const cx=S.w/2, cy=S.h/2;
+  // magnet bar
+  ctx.fillStyle='#e53935'; ctx.fillRect(cx-110,cy-22,110,44);
+  ctx.fillStyle='#1e88e5'; ctx.fillRect(cx,cy-22,110,44);
+  ctx.fillStyle='white'; ctx.font='bold 18px sans-serif'; ctx.textAlign='center';
+  ctx.fillText('N',cx-55,cy+7); ctx.fillText('S',cx+55,cy+7);
+  ctx.textAlign='left';
+  // animated field lines
+  for(let i=0;i<8;i++){
+    const angle=(i/8)*Math.PI*2;
+    const r1=55, r2=170;
+    for(let p=0;p<12;p++){
+      const frac=((p/12)+(t/100))%1;
+      const r=r1+(r2-r1)*frac;
+      // field lines loop from N to S outside, S to N inside
+      const flip = Math.cos(angle)>0?1:-1;
+      const bx=cx+Math.cos(angle)*r*flip;
+      const by=cy+Math.sin(angle)*r*0.5;
+      const alpha=Math.sin(frac*Math.PI);
+      ctx.globalAlpha=alpha*0.85;
+      ctx.beginPath(); ctx.arc(bx,by,4,0,Math.PI*2);
+      ctx.fillStyle=Math.cos(angle)>0?'#e53935':'#1e88e5'; ctx.fill();
+    }
+  }
+  ctx.globalAlpha=1;
+  label(ctx,20,30,'Field lines go from N → S outside 🔴→🔵',  '#c62828',13);
+  label(ctx,20,S.h-15,'Opposite poles ATTRACT  |  Same poles REPEL','#333',12);
+}
+
+/* GRAVITY */
+function diagGravity(ctx,S,t){
+  const sky=ctx.createLinearGradient(0,0,0,S.h);
+  sky.addColorStop(0,'#e3f2fd'); sky.addColorStop(1,'#bbdefb');
+  ctx.fillStyle=sky; ctx.fillRect(0,0,S.w,S.h);
+  // earth
+  ctx.beginPath(); ctx.arc(S.w/2,S.h+30,120,Math.PI,0);
+  ctx.fillStyle='#43a047'; ctx.fill();
+  ctx.beginPath(); ctx.arc(S.w/2,S.h+30,120,Math.PI,0);
+  ctx.strokeStyle='#1b5e20'; ctx.lineWidth=3; ctx.stroke();
+  label(ctx,S.w/2-20,S.h-2,'Earth','#1b5e20',14);
+  // falling apple
+  const ay=30+((t*2)%210);
+  ctx.font='32px serif'; ctx.fillText('🍎',S.w/2-16,ay);
+  // gravity arrows beside it
+  for(let i=0;i<4;i++) arrow(ctx,S.w/2+45,40+i*40,S.w/2+45,70+i*40,'#e53935',2);
+  label(ctx,S.w/2+55,55,'Gravity pulls DOWN','#c62828',12);
+  // Newton label
+  ctx.font='bold 13px sans-serif'; ctx.fillStyle='#1565c0';
+  ctx.fillText('Isaac Newton discovered gravity in 1687! 🍏',30,30);
+}
+
+/* SOLAR SYSTEM */
+function diagSolar(ctx,S,t){
+  ctx.fillStyle='#050a1a'; ctx.fillRect(0,0,S.w,S.h);
+  for(let i=0;i<80;i++){ ctx.globalAlpha=(i%3===0?.9:.4); ctx.fillStyle='white'; ctx.fillRect((i*137)%S.w,(i*89)%S.h,1.5,1.5); }
+  ctx.globalAlpha=1;
+  const cx=80,cy=S.h/2;
+  // sun
+  const sg=ctx.createRadialGradient(cx,cy,5,cx,cy,36);
+  sg.addColorStop(0,'#fff9c4'); sg.addColorStop(1,'#ff8f00');
+  ctx.beginPath(); ctx.arc(cx,cy,36,0,Math.PI*2); ctx.fillStyle=sg; ctx.fill();
+  label(ctx,cx-10,cy+50,'Sun','#ffcc00',11);
+  const planets=[
+    {n:'Mercury',c:'#b0a09a',r:5, d:80, sp:.06},
+    {n:'Venus',  c:'#e8c07a',r:8, d:120,sp:.04},
+    {n:'Earth',  c:'#4fc3f7',r:9, d:168,sp:.03},
+    {n:'Mars',   c:'#ef5350',r:7, d:215,sp:.024},
+    {n:'Jupiter',c:'#ffb74d',r:17,d:275,sp:.016},
+    {n:'Saturn', c:'#ffe082',r:14,d:340,sp:.012},
+    {n:'Uranus', c:'#80deea',r:11,d:400,sp:.009},
+    {n:'Neptune',c:'#5c6bc0',r:10,d:460,sp:.007},
+  ];
+  planets.forEach(p=>{
+    // orbit ring
+    ctx.beginPath(); ctx.ellipse(cx,cy,p.d,p.d*0.3,0,0,Math.PI*2);
+    ctx.strokeStyle='rgba(255,255,255,0.08)'; ctx.lineWidth=1; ctx.stroke();
+    const a=t*p.sp;
+    const px=cx+Math.cos(a)*p.d, py=cy+Math.sin(a)*p.d*0.3;
+    ctx.beginPath(); ctx.arc(px,py,p.r,0,Math.PI*2);
+    ctx.fillStyle=p.c; ctx.fill();
+    if(p.n==='Saturn'){
+      ctx.beginPath(); ctx.ellipse(px,py,p.r+9,4,0,0,Math.PI*2);
+      ctx.strokeStyle='#ffe082'; ctx.lineWidth=2; ctx.stroke();
+    }
+    if(px>cx+p.d*0.6){ // only label when right side visible
+      ctx.font='9px sans-serif'; ctx.fillStyle='rgba(255,255,255,0.7)';
+      ctx.fillText(p.n,px-p.r,py-p.r-3);
+    }
+  });
+}
+
+/* ATOM */
+function diagAtom(ctx,S,t){
+  ctx.fillStyle='#0d1b2a'; ctx.fillRect(0,0,S.w,S.h);
+  const cx=S.w/2, cy=S.h/2;
+  // nucleus label
+  ctx.beginPath(); ctx.arc(cx,cy,22,0,Math.PI*2);
+  ctx.fillStyle='#ef5350'; ctx.fill();
+  ctx.font='bold 11px sans-serif'; ctx.fillStyle='white'; ctx.textAlign='center';
+  ctx.fillText('Nucleus',cx,cy+4); ctx.textAlign='left';
+  // protons & neutrons inside
+  [[cx-8,cy-6,'#ff8a80','p+'],[cx+8,cy+6,'#80d8ff','n']].forEach(([x,y,c,l])=>{
+    ctx.beginPath(); ctx.arc(x,y,8,0,Math.PI*2); ctx.fillStyle=c; ctx.fill();
+    ctx.font='bold 9px sans-serif'; ctx.fillStyle='#333'; ctx.textAlign='center';
+    ctx.fillText(l,x,y+3); ctx.textAlign='left';
+  });
+  // 3 electron orbits
+  const orbits=[
+    {rx:90, ry:35, tilt:0,   electrons:[0]},
+    {rx:130,ry:50, tilt:1.1, electrons:[0, Math.PI]},
+    {rx:170,ry:65, tilt:2.2, electrons:[0, 2.1, 4.2]},
+  ];
+  orbits.forEach((o,oi)=>{
+    ctx.save(); ctx.translate(cx,cy); ctx.rotate(o.tilt);
+    ctx.beginPath(); ctx.ellipse(0,0,o.rx,o.ry,0,0,Math.PI*2);
+    ctx.strokeStyle=`rgba(100,180,255,${0.3+oi*0.1})`; ctx.lineWidth=1.5; ctx.stroke();
+    o.electrons.forEach(offset=>{
+      const a=t*0.04+offset;
+      const ex=Math.cos(a)*o.rx, ey=Math.sin(a)*o.ry;
+      ctx.beginPath(); ctx.arc(ex,ey,6,0,Math.PI*2);
+      const eg=ctx.createRadialGradient(ex,ey,1,ex,ey,6);
+      eg.addColorStop(0,'#e3f2fd'); eg.addColorStop(1,'#1565c0');
+      ctx.fillStyle=eg; ctx.fill();
+    });
+    ctx.restore();
+  });
+  label(ctx,20,20,'⚛️ Atom — everything is made of these!','#80d8ff',13);
+  label(ctx,20,S.h-15,'🔴 Protons (+)   🔵 Neutrons (0)   🔵 Electrons (−)','#ccc',11);
+}
+
+/* LIGHT */
+function diagLight(ctx,S,t){
+  ctx.fillStyle='#fff8e1'; ctx.fillRect(0,0,S.w,S.h);
+  // source
+  ctx.beginPath(); ctx.arc(60,S.h/2,28,0,Math.PI*2);
+  const sg=ctx.createRadialGradient(60,S.h/2,3,60,S.h/2,28);
+  sg.addColorStop(0,'#fffde7'); sg.addColorStop(1,'#ffd54f');
+  ctx.fillStyle=sg; ctx.fill();
+  ctx.font='22px serif'; ctx.textAlign='center'; ctx.fillText('💡',60,S.h/2+8); ctx.textAlign='left';
+  // prism
+  ctx.beginPath(); ctx.moveTo(310,S.h/2-70); ctx.lineTo(360,S.h/2+70); ctx.lineTo(260,S.h/2+70); ctx.closePath();
+  ctx.fillStyle='rgba(200,230,255,0.6)'; ctx.fill();
+  ctx.strokeStyle='#90caf9'; ctx.lineWidth=2; ctx.stroke();
+  label(ctx,262,S.h/2+90,'Prism','#1565c0',12);
+  // incoming beam
+  const beamAnim=(t*2)%250;
+  ctx.strokeStyle='rgba(255,255,180,0.9)'; ctx.lineWidth=6;
+  ctx.beginPath(); ctx.moveTo(88,S.h/2); ctx.lineTo(Math.min(310,88+beamAnim),S.h/2); ctx.stroke();
+  // split rainbow
+  if(beamAnim>220){
+    const colors=['#ef5350','#ff7043','#ffd740','#66bb6a','#29b6f6','#7e57c2','#ec407a'];
+    colors.forEach((c,i)=>{
+      const fy=S.h/2+70+(i-3)*18;
+      ctx.strokeStyle=c; ctx.lineWidth=4;
+      ctx.beginPath(); ctx.moveTo(360,S.h/2+70); ctx.lineTo(660,fy); ctx.stroke();
+    });
+  }
+  label(ctx,20,22,'Light bends through a prism and splits into RAINBOW colors! 🌈','#e65100',13);
+  label(ctx,20,S.h-12,'Each color has a different wavelength → Red is longest, Violet is shortest','#555',11);
+}
+
+/* CIRCUIT */
+function diagCircuit(ctx,S,t){
+  ctx.fillStyle='#f1f8e9'; ctx.fillRect(0,0,S.w,S.h);
+  // circuit path (rectangle)
+  const lx=100,rx=620,ty=60,by=200;
+  ctx.strokeStyle='#bdbdbd'; ctx.lineWidth=8; ctx.lineJoin='round';
+  ctx.strokeRect(lx,ty,rx-lx,by-ty);
+  // battery left side
+  ctx.fillStyle='#ff8f00'; ctx.fillRect(lx-8,ty+40,16,80);
+  ctx.fillStyle='#333'; ctx.fillRect(lx-12,ty+55,24,10);
+  ctx.fillStyle='#ff8f00'; ctx.fillRect(lx-12,ty+72,24,20);
+  label(ctx,lx-40,ty+140,'Battery\n(+) (-)','#e65100',11);
+  // bulb top right
+  ctx.beginPath(); ctx.arc(rx,ty,22,0,Math.PI*2);
+  const bulbOn=Math.sin(t/10)>0;
+  ctx.fillStyle=bulbOn?'#fff176':'#e0e0e0'; ctx.fill();
+  ctx.strokeStyle='#ffa000'; ctx.lineWidth=3; ctx.stroke();
+  if(bulbOn){ ctx.font='18px serif'; ctx.textAlign='center'; ctx.fillText('💡',rx,ty+7); ctx.textAlign='left'; }
+  label(ctx,rx-15,ty-30,'Bulb','#e65100',12);
+  // switch bottom middle
+  const sx=(lx+rx)/2, sy=by;
+  ctx.fillStyle='#1e88e5'; ctx.beginPath(); ctx.arc(sx,sy,10,0,Math.PI*2); ctx.fill();
+  label(ctx,sx-20,sy+22,'Switch','#1565c0',12);
+  // animated electrons flowing
+  for(let i=0;i<10;i++){
+    const totalPerim=2*((rx-lx)+(by-ty));
+    const pos=((t*2+i*(totalPerim/10))%totalPerim);
+    let ex,ey;
+    const w=rx-lx, h=by-ty;
+    if(pos<w){ex=lx+pos;ey=ty;}
+    else if(pos<w+h){ex=rx;ey=ty+(pos-w);}
+    else if(pos<2*w+h){ex=rx-(pos-w-h);ey=by;}
+    else{ex=lx;ey=by-(pos-2*w-h);}
+    ctx.beginPath(); ctx.arc(ex,ey,5,0,Math.PI*2);
+    ctx.fillStyle='#ffeb3b'; ctx.fill();
+  }
+  label(ctx,20,22,'⚡ Electric Circuit — electrons flow like water in a pipe!','#1b5e20',13);
+  label(ctx,20,S.h-10,'Current flows from Battery → through Switch → through Bulb → back to Battery','#555',11);
+}
+
+/* SOUND WAVE */
+function diagSound(ctx,S,t){
+  ctx.fillStyle='#f3e5f5'; ctx.fillRect(0,0,S.w,S.h);
+  // speaker
+  ctx.fillStyle='#7b1fa2';
+  ctx.fillRect(30,S.h/2-50,40,100);
+  ctx.beginPath(); ctx.moveTo(70,S.h/2-30); ctx.lineTo(110,S.h/2-60); ctx.lineTo(110,S.h/2+60); ctx.lineTo(70,S.h/2+30); ctx.closePath();
+  ctx.fillStyle='#9c27b0'; ctx.fill();
+  // compression waves (animated rings)
+  for(let i=0;i<8;i++){
+    const r=40+i*70 - (t*3)%70;
+    if(r<0||r>620) continue;
+    ctx.globalAlpha=Math.max(0,0.7-i*0.08);
+    ctx.strokeStyle='#ce93d8'; ctx.lineWidth=3;
+    ctx.beginPath(); ctx.moveTo(110+r,S.h/2-Math.sin(i)*10);
+    for(let x=0;x<600-r;x+=3){
+      const amp=40*Math.exp(-x/200);
+      const y=S.h/2+Math.sin((x+r-t*3)/30)*amp;
+      ctx.lineTo(110+r+x,y);
+    }
+    ctx.stroke();
+  }
+  ctx.globalAlpha=1;
+  // ear
+  ctx.font='50px serif'; ctx.fillText('👂',640,S.h/2+25);
+  label(ctx,20,22,'🔊 Sound travels as pressure WAVES through air','#4a148c',13);
+  label(ctx,20,S.h-10,'Louder sound = bigger waves  |  Higher pitch = more waves per second','#555',11);
+}
+
+/* ANIMAL CELL */
+function diagCell(ctx,S,t){
+  ctx.fillStyle='#e8f5e9'; ctx.fillRect(0,0,S.w,S.h);
+  const cx=S.w/2, cy=S.h/2;
+  // cell membrane (wobbly)
+  ctx.beginPath();
+  for(let a=0;a<Math.PI*2;a+=0.05){
+    const r=105+Math.sin(a*6+t/20)*5;
+    const x=cx+Math.cos(a)*r, y=cy+Math.sin(a)*r*0.7;
+    a===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+  }
+  ctx.closePath(); ctx.fillStyle='rgba(200,240,200,0.6)'; ctx.fill();
+  ctx.strokeStyle='#43a047'; ctx.lineWidth=3; ctx.stroke();
+  label(ctx,cx+85,cy-72,'Cell membrane','#2e7d32',11);
+  // nucleus
+  ctx.beginPath(); ctx.arc(cx,cy,32,0,Math.PI*2);
+  ctx.fillStyle='rgba(100,150,250,0.4)'; ctx.fill();
+  ctx.strokeStyle='#1565c0'; ctx.lineWidth=2.5; ctx.stroke();
+  ctx.font='bold 10px sans-serif'; ctx.fillStyle='#0d47a1'; ctx.textAlign='center';
+  ctx.fillText('Nucleus',cx,cy+4); ctx.textAlign='left';
+  // DNA squiggle inside nucleus
+  for(let i=0;i<6;i++){
+    const nx=cx-15+i*5, ny1=cy-15, ny2=cy+15;
+    const off=Math.sin(t/20+i)*3;
+    ctx.strokeStyle='#5c6bc0'; ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.moveTo(nx+off,ny1); ctx.lineTo(nx-off,ny2); ctx.stroke();
+  }
+  // mitochondria
+  const mits=[{a:0.6,r:70},{a:2.4,r:75},{a:4.2,r:68}];
+  mits.forEach(m=>{
+    const mx=cx+Math.cos(m.a)*m.r, my=cy+Math.sin(m.a)*m.r*0.7;
+    ctx.save(); ctx.translate(mx,my); ctx.rotate(m.a);
+    ctx.beginPath(); ctx.ellipse(0,0,18,9,0,0,Math.PI*2);
+    ctx.fillStyle='#ff8a65'; ctx.fill(); ctx.strokeStyle='#e64a19'; ctx.lineWidth=1.5; ctx.stroke();
+    ctx.restore();
+  });
+  label(ctx,cx+60,cy+60,'Mitochondria\n(energy)','#bf360c',10);
+  // vacuole
+  ctx.beginPath(); ctx.arc(cx-55,cy+35,18,0,Math.PI*2);
+  ctx.fillStyle='rgba(100,200,255,0.4)'; ctx.fill(); ctx.strokeStyle='#0288d1'; ctx.lineWidth=1.5; ctx.stroke();
+  label(ctx,cx-100,cy+60,'Vacuole','#01579b',10);
+  label(ctx,20,20,'🔬 Animal Cell — the basic unit of ALL living things!','#1b5e20',13);
+  label(ctx,20,S.h-10,'Nucleus = control centre  |  Mitochondria = power station  |  Membrane = skin','#555',11);
+}
+
+/* HEART */
+function diagHeart(ctx,S,t){
+  ctx.fillStyle='#fce4ec'; ctx.fillRect(0,0,S.w,S.h);
+  const cx=S.w/2-40, cy=S.h/2;
+  const beat=1+Math.sin(t/8)*0.07;
+  ctx.save(); ctx.translate(cx,cy); ctx.scale(beat,beat);
+  // heart shape
+  ctx.beginPath(); ctx.moveTo(0,20);
+  ctx.bezierCurveTo(0,-30,-70,-30,-70,20);
+  ctx.bezierCurveTo(-70,65,0,90,0,100);
+  ctx.bezierCurveTo(0,90,70,65,70,20);
+  ctx.bezierCurveTo(70,-30,0,-30,0,20);
+  const hg=ctx.createRadialGradient(-20,-10,5,0,30,85);
+  hg.addColorStop(0,'#ff8a80'); hg.addColorStop(1,'#c62828');
+  ctx.fillStyle=hg; ctx.fill();
+  ctx.strokeStyle='#b71c1c'; ctx.lineWidth=3; ctx.stroke();
+  // chambers
+  ctx.strokeStyle='rgba(255,255,255,0.5)'; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.moveTo(0,-20); ctx.lineTo(0,80); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(-70,20); ctx.lineTo(70,20); ctx.stroke();
+  // labels inside
+  ctx.font='bold 10px sans-serif'; ctx.fillStyle='white'; ctx.textAlign='center';
+  ctx.fillText('Right',-35,10); ctx.fillText('Left',35,10);
+  ctx.fillText('Atrium',-35,5); ctx.fillText('Atrium',35,5);
+  ctx.fillText('Right',-35,60); ctx.fillText('Left',35,60);
+  ctx.fillText('Ventricle',-35,72); ctx.fillText('Ventricle',35,72);
+  ctx.textAlign='left';
+  ctx.restore();
+  // blood flow arrows
+  const pulse=(t%60)/60;
+  arrow(ctx,cx+100,cy-50,cx+100+pulse*80,cy-50,'#1e88e5',3);
+  label(ctx,cx+115,cy-60,'To lungs (blue blood)','#1565c0',11);
+  arrow(ctx,cx+100,cy+50,cx+100+pulse*80,cy+50,'#e53935',3);
+  label(ctx,cx+115,cy+65,'To body (red blood)','#c62828',11);
+  label(ctx,20,22,'❤️ Your heart beats ~100,000 times a DAY!','#880e4f',13);
+}
+
+/* NEURON */
+function diagNeuron(ctx,S,t){
+  ctx.fillStyle='#fff8e1'; ctx.fillRect(0,0,S.w,S.h);
+  const cy=S.h/2;
+  // dendrites (left)
+  ctx.strokeStyle='#ff8ac1'; ctx.lineWidth=3;
+  [[-50,-40],[-55,-10],[-50,20],[-55,50],[-40,70]].forEach(([dx,dy])=>{
+    ctx.beginPath(); ctx.moveTo(180,cy); ctx.lineTo(100+dx,cy+dy); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(100+dx,cy+dy); ctx.lineTo(65+dx-10,cy+dy-18); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(100+dx,cy+dy); ctx.lineTo(65+dx+5,cy+dy+15); ctx.stroke();
+  });
+  label(ctx,30,cy-60,'Dendrites\n(receivers)','#ad1457',12);
+  // cell body
+  ctx.beginPath(); ctx.arc(200,cy,42,0,Math.PI*2);
+  const cg=ctx.createRadialGradient(190,cy-10,5,200,cy,42);
+  cg.addColorStop(0,'#fff9c4'); cg.addColorStop(1,'#ff8ac1');
+  ctx.fillStyle=cg; ctx.fill(); ctx.strokeStyle='#c2185b'; ctx.lineWidth=3; ctx.stroke();
+  // nucleus inside
+  ctx.beginPath(); ctx.arc(200,cy,16,0,Math.PI*2);
+  ctx.fillStyle='rgba(74,43,92,0.3)'; ctx.fill();
+  label(ctx,170,cy+58,'Cell Body','#880e4f',12);
+  // axon
+  ctx.strokeStyle='#a48bff'; ctx.lineWidth=10;
+  ctx.beginPath(); ctx.moveTo(242,cy); ctx.lineTo(560,cy); ctx.stroke();
+  ctx.strokeStyle='#7c4dff'; ctx.lineWidth=3;
+  ctx.beginPath(); ctx.moveTo(242,cy-8); ctx.lineTo(560,cy-8); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(242,cy+8); ctx.lineTo(560,cy+8); ctx.stroke();
+  label(ctx,360,cy-25,'Axon (signal highway)','#4527a0',12);
+  // myelin sheaths
+  for(let i=0;i<5;i++){
+    ctx.beginPath(); ctx.roundRect(280+i*56,cy-14,30,28,6);
+    ctx.fillStyle='rgba(255,240,150,0.7)'; ctx.fill();
+    ctx.strokeStyle='#f9a825'; ctx.lineWidth=2; ctx.stroke();
+  }
+  label(ctx,S.w/2-30,cy+30,'Myelin sheath\n(speeds up signal)','#f57f17',10);
+  // signal pulse
+  const sp=240+(t*3)%320;
+  ctx.beginPath(); ctx.arc(sp,cy,10,0,Math.PI*2);
+  const eg=ctx.createRadialGradient(sp,cy,1,sp,cy,10);
+  eg.addColorStop(0,'#fff'); eg.addColorStop(1,'rgba(255,220,0,0)');
+  ctx.fillStyle=eg; ctx.fill();
+  // axon terminal
+  ctx.fillStyle='#a48bff';
+  for(let i=-2;i<=2;i++){
+    ctx.beginPath(); ctx.moveTo(560,cy); ctx.lineTo(600,cy+i*30); ctx.strokeStyle='#7c4dff'; ctx.lineWidth=4; ctx.stroke();
+    ctx.beginPath(); ctx.arc(600,cy+i*30,6,0,Math.PI*2); ctx.fill();
+  }
+  label(ctx,590,cy-55,'Terminal\nButtons','#4527a0',11);
+  label(ctx,20,22,'🧠 Neuron — the messenger cell of your brain!  ⚡ = signal pulse','#4a2b5c',13);
+}
+
+/* VOLCANO */
+function diagVolcano(ctx,S,t){
+  // sky gradient
+  const sky=ctx.createLinearGradient(0,0,0,S.h);
+  sky.addColorStop(0,'#ff7043'); sky.addColorStop(0.5,'#ffab40'); sky.addColorStop(1,'#795548');
+  ctx.fillStyle=sky; ctx.fillRect(0,0,S.w,S.h);
+  // layers of Earth on one side
+  const layers=[['#795548','Crust',22],['#bf360c','Mantle',55],['#e65100','Outer Core',88],['#ff6f00','Inner Core',110]];
+  layers.forEach(([c,n,y2])=>{
+    ctx.fillStyle=c; ctx.fillRect(0,S.h-y2,130,y2);
+    ctx.font='bold 10px sans-serif'; ctx.fillStyle='white'; ctx.fillText(n,5,S.h-y2+14);
+  });
+  // volcano mountain
+  ctx.beginPath(); ctx.moveTo(160,S.h); ctx.lineTo(S.w/2,30); ctx.lineTo(S.w-80,S.h); ctx.closePath();
+  ctx.fillStyle='#4e342e'; ctx.fill();
+  ctx.strokeStyle='#3e2723'; ctx.lineWidth=3; ctx.stroke();
+  // crater
+  ctx.beginPath(); ctx.ellipse(S.w/2,42,40,14,0,0,Math.PI*2);
+  ctx.fillStyle='#bf360c'; ctx.fill();
+  // lava flow down sides
+  ctx.strokeStyle='#ff6d00'; ctx.lineWidth=6;
+  ctx.beginPath(); ctx.moveTo(S.w/2-18,52);
+  ctx.bezierCurveTo(S.w/2-40,100,S.w/2-90,150,S.w/2-130,S.h); ctx.stroke();
+  // eruption particles
+  for(let i=0;i<14;i++){
+    const p=((t*2+i*22)%140)/140;
+    const ang=-Math.PI/2+(i%9-4)*0.28;
+    const x=S.w/2+Math.cos(ang)*p*110;
+    const y=42-Math.sin(-ang)*p*100+p*p*90;
+    ctx.beginPath(); ctx.arc(x,y,5+i%3*2,0,Math.PI*2);
+    ctx.fillStyle=i%2?'#ff6d00':'#ffd600'; ctx.fill();
+  }
+  // ash cloud
+  for(let i=0;i<5;i++){
+    const cx=S.w/2-20+i*20, cy=20-((t+i*30)%100);
+    ctx.beginPath(); ctx.arc(cx,cy,14+i*4,0,Math.PI*2);
+    ctx.fillStyle='rgba(120,120,120,0.4)'; ctx.fill();
+  }
+  label(ctx,S.w/2+60,55,'← Crater','#fff',12);
+  label(ctx,S.w/2+30,130,'Lava flow','#ffd600',12);
+  label(ctx,20,22,'🌋 Volcano — hot melted rock (magma) bursts through Earth\'s crust!','#fff9c4',13);
+}
+
+/* WATER CYCLE */
+function diagWaterCycle(ctx,S,t){
+  const sky=ctx.createLinearGradient(0,0,0,S.h);
+  sky.addColorStop(0,'#bbdefb'); sky.addColorStop(0.7,'#e3f2fd'); sky.addColorStop(1,'#c8e6c9');
+  ctx.fillStyle=sky; ctx.fillRect(0,0,S.w,S.h);
+  // ground & sea
+  ctx.fillStyle='#a5d6a7'; ctx.fillRect(0,S.h-45,S.w,45);
+  ctx.fillStyle='#29b6f6'; ctx.fillRect(0,S.h-45,300,45);
+  label(ctx,80,S.h-15,'Ocean / Lake','#01579b',12);
+  // mountain
+  ctx.beginPath(); ctx.moveTo(400,S.h-45); ctx.lineTo(570,60); ctx.lineTo(720,S.h-45); ctx.closePath();
+  ctx.fillStyle='#6d4c41'; ctx.fill();
+  ctx.beginPath(); ctx.moveTo(530,90); ctx.lineTo(570,60); ctx.lineTo(610,90); ctx.closePath();
+  ctx.fillStyle='white'; ctx.fill();
+  // sun
+  drawSun(ctx,650,50,28,t);
+  // evaporation arrows going up
+  for(let i=0;i<6;i++){
+    const x=30+i*38, y=S.h-55-((t*1.5+i*25)%120);
+    ctx.globalAlpha=0.6; ctx.font='16px serif'; ctx.fillText('💧',x,y);
+  }
+  ctx.globalAlpha=1;
+  label(ctx,20,S.h-65,'↑ Evaporation (water rises as vapour)','#1565c0',11);
+  // cloud
+  drawCloud(ctx,260,70,1.3);
+  // condensation label
+  label(ctx,220,45,'Condensation\n(forms clouds)','#1565c0',11);
+  // rain drops falling
+  for(let i=0;i<12;i++){
+    const x=190+i*14, y=120+((t*2+i*20)%110);
+    ctx.strokeStyle='#1e88e5'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(x,y); ctx.lineTo(x-2,y+12); ctx.stroke();
+  }
+  label(ctx,130,200,'↓ Precipitation\n(rain / snow)','#0d47a1',11);
+  // runoff arrow
+  arrow(ctx,450,S.h-45,200,S.h-45,'#1e88e5',3);
+  label(ctx,290,S.h-52,'← Runoff','#01579b',11);
+  label(ctx,20,22,'💧 The Water Cycle — water travels in a never-ending loop!','#0d47a1',13);
+}
+
+/* PHOTOSYNTHESIS */
+function diagPhotosynthesis(ctx,S,t){
+  ctx.fillStyle='#e8f5e9'; ctx.fillRect(0,0,S.w,S.h);
+  // sun
+  drawSun(ctx,90,70,32,t);
+  // sunlight beams to leaf
+  for(let i=0;i<4;i++){
+    const p=((t+i*20)%80)/80;
+    ctx.globalAlpha=p*0.8;
+    ctx.strokeStyle='#ffd740'; ctx.lineWidth=3;
+    ctx.beginPath(); ctx.moveTo(120,80+i*5); ctx.lineTo(120+p*180,110+i*8); ctx.stroke();
+  }
+  ctx.globalAlpha=1;
+  // leaf (big, labelled)
+  ctx.save(); ctx.translate(340,S.h/2);
+  ctx.beginPath(); ctx.ellipse(0,-30,90,50,Math.PI/6,0,Math.PI*2);
+  ctx.fillStyle='#43a047'; ctx.fill(); ctx.strokeStyle='#1b5e20'; ctx.lineWidth=2; ctx.stroke();
+  // veins
+  ctx.strokeStyle='rgba(255,255,255,0.5)'; ctx.lineWidth=1.5;
+  ctx.beginPath(); ctx.moveTo(-60,10); ctx.lineTo(60,-70); ctx.stroke();
+  for(let i=-3;i<=3;i++){
+    ctx.beginPath(); ctx.moveTo(i*16,-40+Math.abs(i)*5); ctx.lineTo(i*14+10,-55+Math.abs(i)*3); ctx.stroke();
+  }
+  ctx.restore();
+  label(ctx,300,S.h/2-80,'Leaf\n(chlorophyll)','#1b5e20',12);
+  // CO2 in
+  for(let i=0;i<3;i++){
+    const x=160+i*30, y=S.h/2-60+((t+i*25)%80)*0.5;
+    ctx.font='13px sans-serif'; ctx.fillStyle='#78909c'; ctx.fillText('CO₂',x,y);
+  }
+  label(ctx,140,S.h/2-70,'CO₂ in →','#546e7a',11);
+  // H2O up from roots
+  const wy=S.h-((t*1.5)%160);
+  ctx.strokeStyle='#29b6f6'; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.moveTo(340,S.h); ctx.lineTo(340,Math.max(S.h/2,wy)); ctx.stroke();
+  ctx.font='13px sans-serif'; ctx.fillStyle='#0277bd'; ctx.fillText('H₂O',320,S.h-20);
+  label(ctx,350,S.h-20,'Water (from roots) ↑','#01579b',11);
+  // Output O2
+  for(let i=0;i<4;i++){
+    const x=430+i*30, y=S.h/2-60-((t+i*20)%80)*0.6;
+    ctx.font='13px sans-serif'; ctx.fillStyle='#00897b'; ctx.fillText('O₂',x,y);
+  }
+  label(ctx,420,S.h/2-80,'→ O₂ out','#00695c',11);
+  // glucose
+  ctx.font='bold 14px sans-serif'; ctx.fillStyle='#f57f17'; ctx.textAlign='center';
+  ctx.fillText('→ Glucose (food!) 🍬',S.w-120,S.h/2);
+  ctx.textAlign='left';
+  label(ctx,20,22,'🌿 Photosynthesis: Sun + Water + CO₂ → Food (Glucose) + Oxygen','#1b5e20',13);
+  label(ctx,20,S.h-10,'That\'s why plants are GREEN and why we need them to BREATHE! 🌍','#555',11);
+}
+
+/* FRACTIONS */
+function diagFraction(ctx,S,t){
+  ctx.fillStyle='#fff8e1'; ctx.fillRect(0,0,S.w,S.h);
+  // pizza 1/2
+  ctx.save(); ctx.translate(120,S.h/2);
+  ctx.beginPath(); ctx.arc(0,0,70,0,Math.PI*2); ctx.fillStyle='#ef5350'; ctx.fill();
+  ctx.strokeStyle='white'; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(0,-70); ctx.lineTo(0,70); ctx.stroke();
+  ctx.fillStyle='rgba(0,0,0,0.25)'; ctx.beginPath(); ctx.moveTo(0,0); ctx.arc(0,0,70,Math.PI,Math.PI*2); ctx.closePath(); ctx.fill();
+  ctx.restore();
+  label(ctx,90,S.h/2+85,'½ = one half','#b71c1c',12);
+  // pizza 1/4
+  ctx.save(); ctx.translate(310,S.h/2);
+  ctx.beginPath(); ctx.arc(0,0,70,0,Math.PI*2); ctx.fillStyle='#ff9800'; ctx.fill();
+  ctx.strokeStyle='white'; ctx.lineWidth=3;
+  ctx.beginPath(); ctx.moveTo(-70,0); ctx.lineTo(70,0); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(0,-70); ctx.lineTo(0,70); ctx.stroke();
+  ctx.fillStyle='rgba(0,0,0,0.25)'; ctx.beginPath(); ctx.moveTo(0,0); ctx.arc(0,0,70,Math.PI/2,Math.PI*2); ctx.closePath(); ctx.fill();
+  ctx.restore();
+  label(ctx,276,S.h/2+85,'¼ = one quarter','#e65100',12);
+  // number line
+  const nx=450, nw=220;
+  ctx.strokeStyle='#555'; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.moveTo(nx,S.h/2); ctx.lineTo(nx+nw,S.h/2); ctx.stroke();
+  [0,0.25,0.5,0.75,1].forEach((v,i)=>{
+    const x=nx+v*nw;
+    ctx.beginPath(); ctx.moveTo(x,S.h/2-8); ctx.lineTo(x,S.h/2+8); ctx.stroke();
+    ctx.font='bold 12px sans-serif'; ctx.fillStyle='#333'; ctx.textAlign='center';
+    ctx.fillText(['0','¼','½','¾','1'][i],x,S.h/2+22);
+  });
+  // sliding dot
+  const sliderX=nx+((Math.sin(t/60)+1)/2)*nw;
+  ctx.beginPath(); ctx.arc(sliderX,S.h/2,10,0,Math.PI*2); ctx.fillStyle='#7c4dff'; ctx.fill();
+  ctx.textAlign='left';
+  label(ctx,20,22,'🍕 Fractions — parts of a whole!','#e65100',14);
+  label(ctx,20,S.h-10,'Numerator (top) = how many pieces you have  |  Denominator (bottom) = total pieces','#555',11);
+}
+
+/* MATH */
+function diagMath(ctx,S,t){
+  ctx.fillStyle='#e8eaf6'; ctx.fillRect(0,0,S.w,S.h);
+  // chalkboard
+  ctx.fillStyle='#263238'; ctx.roundRect?ctx.roundRect(30,20,660,200,12):ctx.fillRect(30,20,660,200);
+  ctx.fill();
+  ctx.strokeStyle='#90a4ae'; ctx.lineWidth=3; ctx.stroke();
+  // animated chalk equations
+  const eqs=[
+    '2 + 3 = 5','10 − 4 = 6','3 × 4 = 12','15 ÷ 3 = 5',
+    'π ≈ 3.14','√16 = 4','2² = 4','100% = 1 whole'
+  ];
+  eqs.forEach((e,i)=>{
+    const x=60+i*170%630, y=70+(Math.floor(i/3.6))*50;
+    ctx.font=`bold ${15+i%3*2}px monospace`;
+    ctx.fillStyle=['#80cbc4','#ffcc80','#f48fb1','#b39ddb','#80deea'][i%5];
+    ctx.globalAlpha=0.7+Math.sin(t/20+i)*0.3;
+    ctx.fillText(e,x%630+55,y);
+  });
+  ctx.globalAlpha=1;
+  // blinking cursor
+  if(Math.floor(t/20)%2===0){ ctx.fillStyle='white'; ctx.fillRect(55+(t*2)%620,170,2,18); }
+  label(ctx,20,S.h-10,'Math is the language of the universe — everything follows rules! 🔢','#3949ab',12);
+}
+
+/* ROCKET */
+function diagRocket(ctx,S,t){
+  ctx.fillStyle='#0a0520'; ctx.fillRect(0,0,S.w,S.h);
+  for(let i=0;i<80;i++){ ctx.globalAlpha=(i%3?0.3:0.8); ctx.fillStyle='white'; ctx.fillRect((i*137)%S.w,(i*89)%S.h,1.5,1.5); }
+  ctx.globalAlpha=1;
+  const rx=S.w/2, ry=S.h-((t*1.5)%400)-20;
+  // flame
+  for(let i=0;i<8;i++){
+    const fw=15+i*5, fh=30+i*8;
+    ctx.beginPath(); ctx.ellipse(rx,(ry<10?S.h-10:ry)+50+i*4,fw*0.5,fh*0.3,0,0,Math.PI*2);
+    ctx.fillStyle=i%2?'#ff6d00':'#ffd600'; ctx.globalAlpha=0.7-i*0.08; ctx.fill();
+  }
+  ctx.globalAlpha=1;
+  // rocket body
+  ctx.save(); ctx.translate(rx,Math.max(30,ry));
+  ctx.fillStyle='#eceff1';
+  ctx.beginPath(); ctx.moveTo(0,-60); ctx.lineTo(-22,30); ctx.lineTo(22,30); ctx.closePath(); ctx.fill();
+  ctx.strokeStyle='#90a4ae'; ctx.lineWidth=2; ctx.stroke();
+  // nose
+  ctx.beginPath(); ctx.moveTo(0,-60); ctx.lineTo(-15,-30); ctx.lineTo(15,-30); ctx.closePath();
+  ctx.fillStyle='#ef5350'; ctx.fill();
+  // window
+  ctx.beginPath(); ctx.arc(0,-15,10,0,Math.PI*2); ctx.fillStyle='#29b6f6'; ctx.fill();
+  // fins
+  [[-22,10],[-38,30]].forEach(([x1,y1])=>{ ctx.beginPath(); ctx.moveTo(-22,10); ctx.lineTo(x1,y1); ctx.lineTo(-22,30); ctx.fillStyle='#ef5350'; ctx.fill(); });
+  [[22,10],[38,30]].forEach(([x1,y1])=>{ ctx.beginPath(); ctx.moveTo(22,10); ctx.lineTo(x1,y1); ctx.lineTo(22,30); ctx.fillStyle='#ef5350'; ctx.fill(); });
+  ctx.restore();
+  label(ctx,20,22,'🚀 Rocket — thrust pushes it UP, gravity pulls it DOWN!','#80d8ff',13);
+  label(ctx,20,S.h-10,'Action = engine fire DOWN  →  Reaction = rocket goes UP (Newton\'s 3rd Law!)','#ccc',11);
+}
+
+/* DINO */
+function diagDino(ctx,S,t){
+  const bg=ctx.createLinearGradient(0,0,0,S.h);
+  bg.addColorStop(0,'#e8f5e9'); bg.addColorStop(1,'#c8e6c9');
+  ctx.fillStyle=bg; ctx.fillRect(0,0,S.w,S.h);
+  ctx.fillStyle='#a5d6a7'; ctx.fillRect(0,S.h-40,S.w,40);
+  // ferns
+  [80,200,350,500,620].forEach((x,i)=>{
+    ctx.strokeStyle='#388e3c'; ctx.lineWidth=3;
+    ctx.beginPath(); ctx.moveTo(x,S.h-40); ctx.lineTo(x+Math.sin(t/20+i)*4,S.h-80-i*10); ctx.stroke();
+    for(let j=-3;j<=3;j++){
+      const lx=x+Math.sin(t/20+i)*4; const ly=S.h-60-i*10;
+      ctx.beginPath(); ctx.moveTo(lx,ly); ctx.lineTo(lx+j*12,ly-20+Math.abs(j)*4); ctx.stroke();
+    }
+  });
+  // T-Rex
+  ctx.save(); ctx.translate(250+Math.sin(t/40)*6, S.h-40);
+  ctx.fillStyle='#558b2f';
+  // body
+  ctx.beginPath(); ctx.ellipse(0,-70,50,35,0.2,0,Math.PI*2); ctx.fill();
+  // head
+  ctx.beginPath(); ctx.ellipse(55,-100,32,22,-0.3,0,Math.PI*2); ctx.fill();
+  // jaw
+  ctx.beginPath(); ctx.ellipse(60,-90,28,12,0.1,0,Math.PI*2); ctx.fillStyle='#33691e'; ctx.fill();
+  // eye
+  ctx.beginPath(); ctx.arc(68,-108,5,0,Math.PI*2); ctx.fillStyle='#fff9c4'; ctx.fill();
+  ctx.beginPath(); ctx.arc(69,-108,2.5,0,Math.PI*2); ctx.fillStyle='#212121'; ctx.fill();
+  // teeth
+  ctx.fillStyle='white';
+  for(let i=0;i<4;i++){ ctx.beginPath(); ctx.moveTo(40+i*10,-88); ctx.lineTo(43+i*10,-78); ctx.lineTo(46+i*10,-88); ctx.fill(); }
+  // legs
+  ctx.fillStyle='#558b2f';
+  const legSwing=Math.sin(t/8)*15;
+  ctx.fillRect(-30,-40,18,50+legSwing);
+  ctx.fillRect(-5,-40,18,50-legSwing);
+  // tiny arms
+  ctx.fillRect(30,-80,8,20);
+  // tail
+  ctx.beginPath(); ctx.moveTo(-50,-60); ctx.bezierCurveTo(-110,-50,-120,-90,-100,-100); ctx.strokeStyle='#558b2f'; ctx.lineWidth=14; ctx.stroke();
+  ctx.restore();
+  label(ctx,20,22,'🦕 Dinosaurs lived 230–66 million years ago! An asteroid wiped them out.','#1b5e20',13);
+  label(ctx,20,S.h-50,'T-Rex could be 4 metres tall — as big as a double-decker bus! 🚌','#2e7d32',12);
+}
+
+/* OCEAN */
+function diagOcean(ctx,S,t){
+  // sky
+  ctx.fillStyle='#e3f2fd'; ctx.fillRect(0,0,S.w,60);
+  drawSun(ctx,S.w-70,35,25,t);
+  // ocean layers
+  const layers=[
+    {y:60, h:50, c:'#29b6f6', n:'Sunlight Zone (0-200m) 🐬🐠🌊'},
+    {y:110,h:50, c:'#0288d1', n:'Twilight Zone (200-1000m) 🦑'},
+    {y:160,h:45, c:'#01579b', n:'Midnight Zone (1000-4000m) 🐙'},
+    {y:205,h:35, c:'#0d47a1', n:'Abyss (4000m+) 🦐'},
+    {y:240,h:20, c:'#0a237a', n:'Trenches'},
+  ];
+  layers.forEach(l=>{
+    ctx.fillStyle=l.c; ctx.fillRect(0,l.y,S.w,l.h);
+    ctx.font='bold 11px sans-serif'; ctx.fillStyle='rgba(255,255,255,0.9)';
+    ctx.fillText(l.n,10,l.y+l.h/2+4);
+  });
+  // waves at surface
+  ctx.strokeStyle='rgba(255,255,255,0.7)'; ctx.lineWidth=2;
+  ctx.beginPath();
+  for(let x=0;x<S.w;x++){ const y=60+Math.sin((x+t*3)/30)*4; x===0?ctx.moveTo(x,y):ctx.lineTo(x,y); }
+  ctx.stroke();
+  // fish in sunlight zone
+  const fishes=['🐠','🐬','🦈','🐡'];
+  fishes.forEach((f,i)=>{ const x=((t*(0.8+i*0.3)+i*150)%780); ctx.font='22px serif'; ctx.fillText(f,x,80+i*10); });
+  // deep creature
+  ctx.font='24px serif'; ctx.fillText('🐙',((t*0.4+100)%700),185);
+  ctx.fillText('🦐',((t*0.2+300)%700),228);
+}
+
+/* WEATHER */
+function diagWeather(ctx,S,t){
+  const sky=ctx.createLinearGradient(0,0,0,S.h);
+  sky.addColorStop(0,'#90caf9'); sky.addColorStop(1,'#e3f2fd');
+  ctx.fillStyle=sky; ctx.fillRect(0,0,S.w,S.h);
+  drawSun(ctx,S.w-70,55,32,t);
+  // clouds
+  for(let i=0;i<3;i++){
+    const cx=((t+i*280)%900)-100;
+    drawCloud(ctx,cx,50+i*35,0.9+i*0.2);
+  }
+  // rain
+  for(let i=0;i<22;i++){
+    const x=(i*34+t*4)%S.w, y=((t*4+i*30)%(S.h-60));
+    ctx.strokeStyle='#1e88e5'; ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.moveTo(x,60+y); ctx.lineTo(x-3,y+74); ctx.stroke();
+  }
+  // lightning
+  if(Math.floor(t/35)%6===0){
+    ctx.strokeStyle='#fff176'; ctx.lineWidth=4;
+    ctx.beginPath(); ctx.moveTo(360,30); ctx.lineTo(340,80); ctx.lineTo(360,80); ctx.lineTo(340,140); ctx.stroke();
+  }
+  // ground
+  ctx.fillStyle='#a5d6a7'; ctx.fillRect(0,S.h-25,S.w,25);
+  // labels
+  label(ctx,20,22,'⛈️ Weather — caused by the Sun heating air and water differently','#0d47a1',13);
+  label(ctx,20,S.h-30,'☁️ Cold air sinks, warm air rises → creates WIND!','#333',12);
+}
+
+/* FOOD CHAIN */
+function diagFoodChain(ctx,S,t){
+  ctx.fillStyle='#f1f8e9'; ctx.fillRect(0,0,S.w,S.h);
+  ctx.fillStyle='#a5d6a7'; ctx.fillRect(0,S.h-35,S.w,35);
+  const chain=[
+    {e:'☀️',l:'Sun\n(energy)',x:60},
+    {e:'🌱',l:'Plants\n(producers)',x:190},
+    {e:'🐛',l:'Insects\n(herbivore)',x:320},
+    {e:'🐸',l:'Frog\n(carnivore)',x:450},
+    {e:'🐍',l:'Snake',x:560},
+    {e:'🦅',l:'Eagle\n(apex)',x:660},
+  ];
+  chain.forEach((c,i)=>{
+    ctx.font='36px serif'; ctx.fillText(c.e,c.x-18,S.h/2+10);
+    ctx.font='bold 10px sans-serif'; ctx.fillStyle='#333'; ctx.textAlign='center';
+    c.l.split('\n').forEach((line,j)=>ctx.fillText(line,c.x,S.h/2+45+j*14));
+    ctx.textAlign='left';
+    if(i<chain.length-1){
+      const p=((t+i*30)%90)/90;
+      arrow(ctx,c.x+22,S.h/2-8,c.x+22+p*(chain[i+1].x-c.x-44),S.h/2-8,'#43a047',2);
+    }
+  });
+  // energy pyramid
+  const pw=[[280,20],[180,16],[120,14],[70,12],[40,10]];
+  pw.forEach(([w,h],i)=>{
+    ctx.fillStyle=[`rgba(76,175,80,0.7)`,`rgba(255,193,7,0.7)`,`rgba(255,152,0,0.7)`,`rgba(244,67,54,0.7)`,`rgba(156,39,176,0.7)`][i];
+    ctx.fillRect(S.w-w/2-160,(S.h-60)/5*i+10,w,h);
+    ctx.font='bold 9px sans-serif'; ctx.fillStyle='white'; ctx.textAlign='center';
+    ctx.fillText(['Producers','Herbivores','Carnivores','Top carnivore','Apex'][i],S.w-160,(S.h-60)/5*i+10+h-2);
+    ctx.textAlign='left';
+  });
+  label(ctx,20,22,'🦁 Food Chain — energy flows from Sun → Plants → Animals','#1b5e20',13);
+}
+
+/* SKELETON */
+function diagSkeleton(ctx,S,t){
+  ctx.fillStyle='#f3e5f5'; ctx.fillRect(0,0,S.w,S.h);
+  const cx=S.w/2, sway=Math.sin(t/30)*3;
+  ctx.strokeStyle='#e1bee7'; ctx.lineWidth=10; ctx.lineCap='round';
+  // skull
+  ctx.beginPath(); ctx.arc(cx,30,24,0,Math.PI*2); ctx.fillStyle='#fafafa'; ctx.fill(); ctx.strokeStyle='#bdbdbd'; ctx.lineWidth=2; ctx.stroke();
+  ctx.beginPath(); ctx.arc(cx-9,36,5,0,Math.PI*2); ctx.arc(cx+9,36,5,0,Math.PI*2); ctx.fillStyle='#212121'; ctx.fill();
+  ctx.beginPath(); ctx.arc(cx,46,8,0,Math.PI); ctx.strokeStyle='#bdbdbd'; ctx.lineWidth=2; ctx.stroke();
+  // spine
+  ctx.strokeStyle='#ce93d8'; ctx.lineWidth=6;
+  for(let i=0;i<8;i++){
+    ctx.beginPath(); ctx.arc(cx+sway*0.3*i,60+i*14,8,0,Math.PI*2); ctx.fillStyle='#f3e5f5'; ctx.fill(); ctx.stroke();
+  }
+  // ribs
+  ctx.strokeStyle='#f48fb1'; ctx.lineWidth=3;
+  for(let i=0;i<5;i++){
+    ctx.beginPath(); ctx.arc(cx+sway,72+i*13,22+i*2,Math.PI*0.2,Math.PI*0.8); ctx.stroke();
+    ctx.beginPath(); ctx.arc(cx+sway,72+i*13,22+i*2,Math.PI*1.2,Math.PI*1.8); ctx.stroke();
+  }
+  // arms
+  ctx.strokeStyle='#90caf9'; ctx.lineWidth=8;
+  ctx.beginPath(); ctx.moveTo(cx-22+sway,68); ctx.lineTo(cx-70+sway,100); ctx.lineTo(cx-60+sway,148); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cx+22+sway,68); ctx.lineTo(cx+70+sway,100); ctx.lineTo(cx+60+sway,148); ctx.stroke();
+  // pelvis
+  ctx.beginPath(); ctx.ellipse(cx+sway,178,28,14,0,0,Math.PI*2); ctx.fillStyle='#ffe082'; ctx.fill(); ctx.strokeStyle='#ffa000'; ctx.lineWidth=2; ctx.stroke();
+  // legs
+  ctx.strokeStyle='#a5d6a7'; ctx.lineWidth=8;
+  ctx.beginPath(); ctx.moveTo(cx-10+sway,192); ctx.lineTo(cx-18,230); ctx.lineTo(cx-14,258); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cx+10+sway,192); ctx.lineTo(cx+18,230); ctx.lineTo(cx+14,258); ctx.stroke();
+  // labels on side
+  const parts=[['Skull',cx+35,32],['Spine',cx+35,105],['Ribs',cx+35,90],['Pelvis',cx+35,180],['Femur\n(thigh)',cx+35,225]];
+  parts.forEach(([n,x,y])=>{ ctx.font='bold 11px sans-serif'; ctx.fillStyle='#4a148c'; ctx.fillText(n,x,y); });
+  label(ctx,20,22,'💀 Human Skeleton — 206 bones hold your body up!','#4a148c',13);
+  label(ctx,20,S.h-10,'Bones protect organs, store calcium & make blood cells 🩸','#555',11);
+}
+
+/* EYE */
+function diagEye(ctx,S,t){
+  ctx.fillStyle='#e8eaf6'; ctx.fillRect(0,0,S.w,S.h);
+  const cx=S.w/2-60, cy=S.h/2+10;
+  // outer eye white (sclera)
+  ctx.save(); ctx.translate(cx,cy);
+  ctx.beginPath(); ctx.ellipse(0,0,100,60,0,0,Math.PI*2);
+  ctx.fillStyle='white'; ctx.fill(); ctx.strokeStyle='#bdbdbd'; ctx.lineWidth=2; ctx.stroke();
+  // iris
+  ctx.beginPath(); ctx.arc(0,0,40,0,Math.PI*2);
+  const ig=ctx.createRadialGradient(0,0,5,0,0,40);
+  ig.addColorStop(0,'#1565c0'); ig.addColorStop(1,'#42a5f5');
+  ctx.fillStyle=ig; ctx.fill();
+  // pupil (dilates)
+  const pupilR=14+Math.sin(t/20)*4;
+  ctx.beginPath(); ctx.arc(0,0,pupilR,0,Math.PI*2); ctx.fillStyle='#111'; ctx.fill();
+  // light reflex
+  ctx.beginPath(); ctx.arc(-6,-6,4,0,Math.PI*2); ctx.fillStyle='rgba(255,255,255,0.8)'; ctx.fill();
+  ctx.restore();
+  // cornea curve highlight
+  ctx.beginPath(); ctx.arc(cx-85,cy,20,Math.PI*1.3,Math.PI*0.7);
+  ctx.strokeStyle='rgba(200,200,255,0.7)'; ctx.lineWidth=4; ctx.stroke();
+  // labels
+  label(ctx,cx+50,cy-62,'Cornea','#283593',11);
+  label(ctx,cx+50,cy-45,'(bends light)','#555',10);
+  label(ctx,cx+50,cy-10,'Iris','#1565c0',11);
+  label(ctx,cx+50,cy+10,'(color)','#555',10);
+  label(ctx,cx+50,cy+30,'Pupil','#111',11);
+  label(ctx,cx+50,cy+48,'(lets light in)','#555',10);
+  label(ctx,cx-160,cy-50,'Sclera','#555',11);
+  // light ray path
+  const lx=S.w-120;
+  arrow(ctx,lx,cy,cx+85,cy,'#ffd740',3);
+  label(ctx,lx+5,cy-10,'Light ray','#f57f17',11);
+  // retina / brain
+  arrow(ctx,cx-100,cy,60,cy,'#e53935',2);
+  label(ctx,20,cy+20,'→ signal to Brain 🧠','#c62828',11);
+  label(ctx,20,22,'👁️ How Eyes Work — light enters → hits retina → brain makes the image!','#283593',13);
+  label(ctx,20,S.h-10,'Your eye is like a camera — the pupil is the lens, retina is the film!','#555',11);
+}
+
+/* COMPUTER / INTERNET */
+function diagComputer(ctx,S,t){
+  ctx.fillStyle='#e8eaf6'; ctx.fillRect(0,0,S.w,S.h);
+  // laptop
+  ctx.fillStyle='#1a237e'; ctx.roundRect?ctx.roundRect(240,30,240,150,8):ctx.fillRect(240,30,240,150);
+  ctx.fill();
+  ctx.fillStyle='#1565c0'; ctx.fillRect(248,38,224,130); // screen
+  // code on screen
+  const lines=['01001000','if(x>0){','return y;','} else {','  print()'];
+  lines.forEach((l,i)=>{ ctx.font='12px monospace'; ctx.fillStyle=i%2?'#80cbc4':'#ce93d8'; ctx.fillText(l,260,55+i*20); });
+  // blinking cursor
+  if(Math.floor(t/20)%2===0){ ctx.fillStyle='white'; ctx.fillRect(260+(t*2)%200,150,2,14); }
+  ctx.fillStyle='#37474f'; ctx.fillRect(210,180,300,12); // base
+  ctx.fillStyle='#546e7a'; ctx.fillRect(280,192,160,6); // hinge
+  // CPU chip diagram
+  ctx.fillStyle='#263238'; ctx.fillRect(30,80,120,100);
+  ctx.fillStyle='#00e676'; ctx.fillRect(40,90,100,80);
+  // chip grid
+  for(let i=0;i<4;i++) for(let j=0;j<4;j++){
+    ctx.fillStyle='#263238'; ctx.fillRect(44+i*24,94+j*18,18,12);
+  }
+  label(ctx,40,195,'CPU Chip','#80cbc4',11);
+  // WiFi waves
+  for(let i=1;i<=4;i++){
+    ctx.beginPath(); ctx.arc(590,S.h/2,i*20,Math.PI*1.1,Math.PI*1.9);
+    ctx.strokeStyle=`rgba(100,200,255,${0.9-i*0.2})`; ctx.lineWidth=3; ctx.stroke();
+  }
+  ctx.font='28px serif'; ctx.fillText('📡',575,S.h/2+30);
+  // data packets flying
+  for(let i=0;i<5;i++){
+    const px=((t*3+i*120)%620)+30, py=S.h-40;
+    ctx.fillStyle=['#80cbc4','#ffcc80','#f48fb1','#b39ddb'][i%4];
+    ctx.fillRect(px,py,18,10);
+  }
+  label(ctx,20,22,'💻 Computers speak in BINARY — just 0s and 1s! 📡 WiFi = radio waves','#283593',13);
+  label(ctx,20,S.h-10,'CPU = brain of computer  |  Data packets travel through internet like letters','#555',11);
+}
+
+/* TIME */
+function diagTime(ctx,S,t){
+  ctx.fillStyle='#fff8e1'; ctx.fillRect(0,0,S.w,S.h);
+  // clock face
+  const cx=160, cy=S.h/2;
+  ctx.beginPath(); ctx.arc(cx,cy,110,0,Math.PI*2); ctx.fillStyle='#fafafa'; ctx.fill();
+  ctx.strokeStyle='#f57f17'; ctx.lineWidth=4; ctx.stroke();
+  // hour marks
+  for(let i=0;i<12;i++){
+    const a=i/12*Math.PI*2-Math.PI/2;
+    ctx.beginPath(); ctx.moveTo(cx+Math.cos(a)*90,cy+Math.sin(a)*90);
+    ctx.lineTo(cx+Math.cos(a)*100,cy+Math.sin(a)*100);
+    ctx.strokeStyle='#555'; ctx.lineWidth=i%3===0?4:2; ctx.stroke();
+    if(i%3===0){
+      ctx.font='bold 14px sans-serif'; ctx.fillStyle='#333'; ctx.textAlign='center';
+      ctx.fillText([12,3,6,9][i/3],cx+Math.cos(a)*76,cy+Math.sin(a)*76+5);
+    }
+  }
+  ctx.textAlign='left';
+  // animated hands
+  const sec=t/60, min=t/3600, hr=t/43200;
+  [['#e53935',80,4,hr],['#1565c0',95,3,min],['#555',105,1.5,sec]].forEach(([c,len,w,angle])=>{
+    const a=angle*Math.PI*2-Math.PI/2;
+    ctx.strokeStyle=c; ctx.lineWidth=w;
+    ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(cx+Math.cos(a)*len,cy+Math.sin(a)*len); ctx.stroke();
+  });
+  ctx.beginPath(); ctx.arc(cx,cy,5,0,Math.PI*2); ctx.fillStyle='#333'; ctx.fill();
+  // day/night diagram
+  const dcx=460, dcy=S.h/2;
+  // earth
+  ctx.beginPath(); ctx.arc(dcx,dcy,60,0,Math.PI*2); ctx.fillStyle='#4fc3f7'; ctx.fill();
+  ctx.strokeStyle='#0277bd'; ctx.lineWidth=2; ctx.stroke();
+  // day side
+  const earthRot=t*0.01;
+  ctx.save(); ctx.translate(dcx,dcy); ctx.rotate(earthRot);
+  ctx.fillStyle='rgba(255,250,150,0.25)'; ctx.beginPath(); ctx.arc(0,0,60,-Math.PI/2,Math.PI/2); ctx.closePath(); ctx.fill();
+  ctx.restore();
+  // sun arrow
+  arrow(ctx,dcx-130,dcy,dcx-65,dcy,'#ffd740',3);
+  ctx.font='24px serif'; ctx.fillText('☀️',dcx-165,dcy+10);
+  label(ctx,dcx+70,dcy-30,'Day side','#f57f17',11);
+  label(ctx,dcx+70,dcy+10,'Night side','#283593',11);
+  // timeline bottom
+  ctx.strokeStyle='#bdbdbd'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(30,S.h-35); ctx.lineTo(S.w-30,S.h-35); ctx.stroke();
+  ['Seconds','Minutes','Hours','Days','Months','Years'].forEach((l,i)=>{
+    const x=50+i*115;
+    ctx.beginPath(); ctx.moveTo(x,S.h-42); ctx.lineTo(x,S.h-28); ctx.strokeStyle='#bdbdbd'; ctx.lineWidth=2; ctx.stroke();
+    ctx.font='10px sans-serif'; ctx.fillStyle='#555'; ctx.textAlign='center'; ctx.fillText(l,x,S.h-14);
+  });
+  ctx.textAlign='left';
+  label(ctx,20,22,'🕐 Time — Earth spinning gives us Day & Night; orbiting gives us Years','#e65100',13);
+}
+
+/* GLOBE */
+function diagGlobe(ctx,S,t){
+  ctx.fillStyle='#e3f2fd'; ctx.fillRect(0,0,S.w,S.h);
+  const cx=200, cy=S.h/2;
+  // globe
+  ctx.beginPath(); ctx.arc(cx,cy,110,0,Math.PI*2);
+  const gg=ctx.createRadialGradient(cx-35,cy-35,10,cx,cy,110);
+  gg.addColorStop(0,'#80deea'); gg.addColorStop(0.5,'#29b6f6'); gg.addColorStop(1,'#0277bd');
+  ctx.fillStyle=gg; ctx.fill(); ctx.strokeStyle='#0d47a1'; ctx.lineWidth=2; ctx.stroke();
+  // continent blobs (simplified)
+  ctx.fillStyle='#66bb6a';
+  // Americas
+  ctx.beginPath(); ctx.ellipse(cx-45+Math.sin(t/60)*3,cy-20,28,50,0.3,0,Math.PI*2); ctx.fill();
+  // Europe/Africa
+  ctx.beginPath(); ctx.ellipse(cx+10,cy-10,20,55,-0.2,0,Math.PI*2); ctx.fill();
+  // Asia
+  ctx.beginPath(); ctx.ellipse(cx+55,cy-20,30,38,0.1,0,Math.PI*2); ctx.fill();
+  // latitude lines
+  ctx.strokeStyle='rgba(255,255,255,0.3)'; ctx.lineWidth=1;
+  [-60,-30,0,30,60].forEach(lat=>{
+    const y=cy+lat*110/90;
+    const hw=Math.sqrt(Math.max(0,110*110-(lat*110/90)**2));
+    ctx.beginPath(); ctx.ellipse(cx,y,hw,hw*0.3,0,0,Math.PI*2); ctx.stroke();
+  });
+  // axis tilt
+  ctx.strokeStyle='rgba(255,255,0,0.7)'; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.moveTo(cx-20,cy-120); ctx.lineTo(cx+20,cy+120); ctx.stroke();
+  label(ctx,cx-20,cy-125,'N Pole','#fff',10);
+  label(ctx,cx+22,cy+130,'S Pole','#fff',10);
+  // compass
+  const compx=380, compy=S.h/2;
+  ctx.beginPath(); ctx.arc(compx,compy,40,0,Math.PI*2); ctx.fillStyle='white'; ctx.fill(); ctx.strokeStyle='#bdbdbd'; ctx.lineWidth=2; ctx.stroke();
+  // compass needle
+  ctx.fillStyle='#e53935'; ctx.beginPath(); ctx.moveTo(compx,compy-35); ctx.lineTo(compx-7,compy+5); ctx.lineTo(compx+7,compy+5); ctx.closePath(); ctx.fill();
+  ctx.fillStyle='#9e9e9e'; ctx.beginPath(); ctx.moveTo(compx,compy+35); ctx.lineTo(compx-7,compy-5); ctx.lineTo(compx+7,compy-5); ctx.closePath(); ctx.fill();
+  ctx.font='bold 12px sans-serif'; ctx.fillStyle='#c62828'; ctx.textAlign='center'; ctx.fillText('N',compx,compy-42);
+  ctx.fillStyle='#555'; ctx.fillText('S',compx,compy+50); ctx.fillText('E',compx+50,compy+5); ctx.fillText('W',compx-50,compy+5);
+  ctx.textAlign='left';
+  // continents list
+  const conts=['🌍 Africa & Europe','🌎 Americas','🌏 Asia & Oceania','🧊 Antarctica'];
+  conts.forEach((c,i)=>{ ctx.font='12px sans-serif'; ctx.fillStyle='#1b5e20'; ctx.fillText(c,450,70+i*35); });
+  label(ctx,20,22,'🌍 Earth has 7 continents, 5 oceans, and ~8 billion people!','#0d47a1',13);
+  label(ctx,20,S.h-10,'Compass needle points NORTH because Earth is a giant magnet 🧲','#555',11);
+}
+
+/* GREET */
+function diagGreet(ctx,S,t){
+  const bg=ctx.createLinearGradient(0,0,S.w,S.h);
+  bg.addColorStop(0,'#fff0f8'); bg.addColorStop(1,'#ece0ff');
+  ctx.fillStyle=bg; ctx.fillRect(0,0,S.w,S.h);
+  ctx.font=`bold ${34+Math.sin(t/15)*3}px "Comic Sans MS",cursive`;
+  ctx.fillStyle='#ff8ac1'; ctx.textAlign='center';
+  ctx.fillText('Hi there! 💖 I\'m batman!',S.w/2,S.h/2-20);
+  ctx.font='18px "Comic Sans MS",cursive'; ctx.fillStyle='#a48bff';
+  ctx.fillText('Ask me ANYTHING — I love to teach! ✨',S.w/2,S.h/2+25);
+  ctx.textAlign='left';
+  const things=['💖','✨','🌸','💫','🦋','⭐','🌟','💕','🎀','🌈'];
+  things.forEach((e,i)=>{ ctx.font='24px serif'; ctx.fillText(e,20+i*70+Math.sin(t/20+i)*12,30+Math.sin(t/15+i*1.5)*22); });
+}
+
+/* DEFAULT fallback */
+function diagDefault(ctx,S,t){
+  const bg=ctx.createLinearGradient(0,0,S.w,S.h);
+  bg.addColorStop(0,'#f5f0ff'); bg.addColorStop(1,'#ffe0f0');
+  ctx.fillStyle=bg; ctx.fillRect(0,0,S.w,S.h);
+  // lightbulb idea animation
+  const lx=S.w/2, ly=S.h/2-20;
+  // glow
+  ctx.globalAlpha=0.3+Math.sin(t/15)*0.2;
+  ctx.beginPath(); ctx.arc(lx,ly,70,0,Math.PI*2);
+  const glow=ctx.createRadialGradient(lx,ly,5,lx,ly,70);
+  glow.addColorStop(0,'#fff9c4'); glow.addColorStop(1,'rgba(255,249,196,0)');
+  ctx.fillStyle=glow; ctx.fill(); ctx.globalAlpha=1;
+  ctx.font='55px serif'; ctx.textAlign='center'; ctx.fillText('💡',lx,ly+20);
+  ctx.textAlign='left';
+  // orbiting subject icons
+  const icons=['🔬','📐','🌍','🎵','📚','🧬','⚗️','🔭'];
+  icons.forEach((ic,i)=>{
+    const a=(t/80+i/icons.length)*Math.PI*2;
+    ctx.font='22px serif'; ctx.fillText(ic,lx+Math.cos(a)*140-11,ly+Math.sin(a)*80);
+  });
+  ctx.font='bold 15px "Comic Sans MS",cursive'; ctx.fillStyle='#a48bff'; ctx.textAlign='center';
+  ctx.fillText('Learning is a superpower! 🌟',S.w/2,S.h-20); ctx.textAlign='left';
+}
+
+/* ---------- teach: sets up card with canvas + lesson steps ---------- */
+
+function teach(id){
+  stopAnim();
+  const T = TOPICS.find(x=>x.id===id);
+  bot(`Yay! Let's learn about ${T.t} ${T.emo}\nWatch the animation while I explain! 💖`);
+  const c = card(`
+    <h2 class="title">${T.emo} ${T.t}</h2>
+    <canvas id="cv" width="720" height="340"></canvas>
+    <div id="lesson" style="margin-top:12px;font-size:15px;line-height:1.6"></div>
+    <div class="controls">
+      <button class="ctrl" onclick="step(-1)">◀ Back</button>
+      <button class="ctrl" onclick="step(1)">Next ▶</button>
+      <button class="ctrl" onclick="replay()">🔁 Replay</button>
+    </div>
+  `);
+  const canvas = c.querySelector('#cv');
+  const ctx = canvas.getContext('2d');
+  const dpr = devicePixelRatio||1;
+  canvas.width = 720*dpr; canvas.height=340*dpr; ctx.scale(dpr,dpr);
+  window._ctx = ctx; window._cv = {w:720,h:340};
+  window._lesson = c.querySelector('#lesson');
+  window._steps = LESSONS[id];
+  window._i = 0;
+  runStep();
+}
+function step(d){ window._i = Math.max(0,Math.min(window._steps.length-1,window._i+d)); runStep(); }
+function replay(){ runStep(); }
+function runStep(){
+  stopAnim();
+  const s = window._steps[window._i];
+  window._lesson.innerHTML = `<b>Step ${window._i+1}/${window._steps.length}:</b> ${s.text}`;
+  s.draw(window._ctx, window._cv);
+}
+
+/* ---------- lessons ---------- */
+const LESSONS = {
+
+/* ============ NEURON ============ */
+neuron: [
+  {
+    text: "Your brain has BILLIONS of tiny cells called <b>neurons</b> 🧠✨ They're like little messengers who love passing notes to each other!",
+    draw(ctx,S){
+      let t=0;
+      function frame(){
+        ctx.clearRect(0,0,S.w,S.h);
+        drawNeuron(ctx,S.w/2,S.h/2,80,t,'#ff8ac1');
+        // floating hearts
+        for(let i=0;i<6;i++){
+          const x = 100 + i*90 + Math.sin(t/30+i)*10;
+          const y = 60 + Math.sin(t/25+i*2)*20;
+          ctx.font='20px serif'; ctx.fillText(['💖','✨','💫'][i%3],x,y);
+        }
+        t++;
+        currentAnim = requestAnimationFrame(frame);
+      }
+      frame();
+    }
+  },
+  {
+    text: "A neuron has 3 main parts: fluffy <b>dendrites</b> (ears that listen 👂), a round <b>cell body</b> (the brain of the neuron 🧠), and a long <b>axon</b> (a slide the message zooms down 🎢).",
+    draw(ctx,S){
+      let t=0;
+      function frame(){
+        ctx.clearRect(0,0,S.w,S.h);
+        drawNeuron(ctx,220,S.h/2,70,t,'#a48bff');
+        // labels
+        ctx.font='bold 14px inherit'; ctx.fillStyle='#4a2b5c';
+        ctx.fillText('👂 Dendrites (listeners)', 20, 60);
+        ctx.beginPath(); ctx.moveTo(170,70); ctx.lineTo(150,120); ctx.strokeStyle='#a48bff'; ctx.lineWidth=2; ctx.stroke();
+        ctx.fillText('🧠 Cell body', 300, 170);
+        ctx.beginPath(); ctx.moveTo(295,165); ctx.lineTo(260,165); ctx.stroke();
+        ctx.fillText('🎢 Axon (the slide)', 460, 190);
+        ctx.beginPath(); ctx.moveTo(455,185); ctx.lineTo(420,185); ctx.stroke();
+        t++;
+        currentAnim = requestAnimationFrame(frame);
+      }
+      frame();
+    }
+  },
+  {
+    text: "When something happens — like you touch a fluffy kitten 🐱 — a tiny electric spark called a <b>signal</b> zooms down the axon! Watch it go!",
+    draw(ctx,S){
+      let t=0;
+      function frame(){
+        ctx.clearRect(0,0,S.w,S.h);
+        drawNeuron(ctx,180,S.h/2,60,t,'#ffb6d5');
+        // signal zooming along axon
+        const p = (t%120)/120;
+        const sx = 240 + p*380;
+        ctx.beginPath();
+        ctx.arc(sx,S.h/2,10+Math.sin(t/3)*2,0,Math.PI*2);
+        const g = ctx.createRadialGradient(sx,S.h/2,0,sx,S.h/2,20);
+        g.addColorStop(0,'#fff'); g.addColorStop(.5,'#ffd54a'); g.addColorStop(1,'rgba(255,213,74,0)');
+        ctx.fillStyle=g; ctx.fill();
+        ctx.font='16px inherit'; ctx.fillStyle='#4a2b5c';
+        ctx.fillText('⚡ zoom!',sx-20,S.h/2-25);
+        ctx.font='bold 14px inherit';
+        ctx.fillText('🐱 touch → signal starts here',30,40);
+        t++;
+        currentAnim = requestAnimationFrame(frame);
+      }
+      frame();
+    }
+  },
+  {
+    text: "At the end of the axon, the neuron sends tiny <b>chemical messages</b> (little sparkles ✨) across a gap to the next neuron. That's how your whole brain talks to itself!",
+    draw(ctx,S){
+      let t=0;
+      function frame(){
+        ctx.clearRect(0,0,S.w,S.h);
+        drawNeuron(ctx,160,S.h/2,55,t,'#ffb6d5');
+        drawNeuron(ctx,560,S.h/2,55,t+30,'#c9b6ff');
+        // axon end + gap
+        ctx.strokeStyle='#a48bff'; ctx.lineWidth=6;
+        ctx.beginPath(); ctx.moveTo(215,S.h/2); ctx.lineTo(420,S.h/2); ctx.stroke();
+        // little sparkles crossing gap
+        for(let i=0;i<5;i++){
+          const p = ((t+i*20)%100)/100;
+          const x = 420 + p*85;
+          const y = S.h/2 + Math.sin((t+i*20)/8)*6;
+          ctx.font='16px serif'; ctx.fillText('✨',x,y);
+        }
+        ctx.font='bold 13px inherit'; ctx.fillStyle='#4a2b5c';
+        ctx.fillText('Neuron A',130,80); ctx.fillText('Neuron B',530,80);
+        ctx.fillText('the tiny gap is called a "synapse"',380,S.h-30);
+        t++;
+        currentAnim = requestAnimationFrame(frame);
+      }
+      frame();
+    }
+  },
+  {
+    text: "The message hops from neuron to neuron ALL the way to your brain, super duper fast (like 250 mph! 🚀). That's how you feel, think, and move! 💖\n\n🎉 Yay! You just learned how neurons work!",
+    draw(ctx,S){
+      let t=0;
+      function frame(){
+        ctx.clearRect(0,0,S.w,S.h);
+        const N=5;
+        for(let i=0;i<N;i++){
+          const x = 80 + i*140;
+          drawNeuron(ctx,x,S.h/2,35,t+i*10,i%2?'#c9b6ff':'#ffb6d5');
+        }
+        // signal traveling through all
+        const total = N*60;
+        const p = (t%total)/total;
+        const idx = Math.floor(p*N);
+        const local = (p*N)-idx;
+        const x1 = 80+idx*140+40;
+        const x2 = 80+(idx+1)*140-40;
+        const sx = x1 + (x2-x1)*local;
+        ctx.beginPath();
+        ctx.arc(sx,S.h/2,9,0,Math.PI*2);
+        const g = ctx.createRadialGradient(sx,S.h/2,0,sx,S.h/2,18);
+        g.addColorStop(0,'#fff'); g.addColorStop(1,'rgba(255,213,74,0)');
+        ctx.fillStyle=g; ctx.fill();
+        ctx.font='bold 16px inherit'; ctx.fillStyle='#4a2b5c';
+        ctx.fillText('⚡ signal traveling through your brain! ⚡',180,50);
+        ctx.font='14px inherit';
+        ctx.fillText('🐱 → 👂 → 🧠 → 💭 → 😊',260,S.h-30);
+        t++;
+        currentAnim = requestAnimationFrame(frame);
+      }
+      frame();
+    }
+  }
+],
+
+/* ============ HEART ============ */
+heart: [
+  {
+    text:"Your <b>heart</b> ❤️ is a super strong muscle about the size of your fist! It squeezes about 100,000 times every day to push blood around your body.",
+    draw(ctx,S){
+      let t=0;
+      function frame(){
+        ctx.clearRect(0,0,S.w,S.h);
+        const beat = 1 + Math.sin(t/8)*0.08;
+        drawHeart(ctx,S.w/2,S.h/2,90*beat,'#ff5c8a');
+        ctx.font='bold 16px inherit'; ctx.fillStyle='#4a2b5c';
+        ctx.fillText('lub-dub 💓 lub-dub 💓',S.w/2-90,S.h-30);
+        t++; currentAnim = requestAnimationFrame(frame);
+      } frame();
+    }
+  },
+  {
+    text:"Blood carries <b>oxygen</b> 💨 (from your lungs) and yummy food 🍎 (from your tummy) to every single part of your body — even your toes!",
+    draw(ctx,S){
+      let t=0;
+      function frame(){
+        ctx.clearRect(0,0,S.w,S.h);
+        drawHeart(ctx,S.w/2,S.h/2,80,'#ff5c8a');
+        for(let i=0;i<8;i++){
+          const a = (t/40 + i/8)*Math.PI*2;
+          const r = 130 + Math.sin(t/20+i)*10;
+          const x = S.w/2 + Math.cos(a)*r;
+          const y = S.h/2 + Math.sin(a)*r*0.6;
+          ctx.font='20px serif'; ctx.fillText(i%2?'💨':'🍎',x-10,y);
+        }
+        t++; currentAnim = requestAnimationFrame(frame);
+      } frame();
+    }
+  },
+  {
+    text:"Blood zooms out through tubes called <b>arteries</b> (red pipes) and comes back through <b>veins</b> (blue pipes). It's like a highway inside you! 🛣️",
+    draw(ctx,S){
+      let t=0;
+      function frame(){
+        ctx.clearRect(0,0,S.w,S.h);
+        drawHeart(ctx,S.w/2,S.h/2,70,'#ff5c8a');
+        // arteries out
+        for(let i=0;i<6;i++){
+          const p = ((t+i*15)%90)/90;
+          ctx.beginPath(); ctx.arc(S.w/2 + (p*280)*(i%2?1:-1), S.h/2 - 100 + i*20, 6,0,Math.PI*2);
+          ctx.fillStyle='#ff4d6d'; ctx.fill();
+        }
+        // veins back
+        for(let i=0;i<6;i++){
+          const p = ((t+i*15)%90)/90;
+          ctx.beginPath(); ctx.arc(S.w/2 - (p*280)*(i%2?1:-1), S.h/2 + 100 - i*20, 6,0,Math.PI*2);
+          ctx.fillStyle='#5b8dff'; ctx.fill();
+        }
+        ctx.font='bold 13px inherit'; ctx.fillStyle='#ff4d6d'; ctx.fillText('🔴 arteries (out)',20,30);
+        ctx.fillStyle='#5b8dff'; ctx.fillText('🔵 veins (back)',20,S.h-20);
+        t++; currentAnim = requestAnimationFrame(frame);
+      } frame();
+    }
+  },
+  {
+    text:"Your heart never ever takes a break — it beats while you sleep, while you dance, while you dream 💭. It's the hardest working muscle in your whole body! 💪\n\n🎉 Yay! You learned how the heart works!",
+    draw(ctx,S){
+      let t=0;
+      function frame(){
+        ctx.clearRect(0,0,S.w,S.h);
+        const beat = 1 + Math.sin(t/6)*0.12;
+        drawHeart(ctx,S.w/2,S.h/2,100*beat,'#ff5c8a');
+        ctx.font='bold 20px inherit'; ctx.fillStyle='#4a2b5c';
+        ctx.fillText('you are amazing! 💖',S.w/2-100,60);
+        t++; currentAnim = requestAnimationFrame(frame);
+      } frame();
+    }
+  }
+],
+
+/* ============ WATER CYCLE ============ */
+water: [
+  {
+    text:"The <b>Sun</b> ☀️ shines on oceans, lakes, and puddles. It heats the water so much that tiny water drops float up into the sky as invisible gas — this is called <b>evaporation</b>.",
+    draw(ctx,S){
+      let t=0;
+      function frame(){
+        ctx.clearRect(0,0,S.w,S.h);
+        drawSky(ctx,S);
+        drawSun(ctx,S.w-90,80,40,t);
+        drawSea(ctx,S,t);
+        for(let i=0;i<10;i++){
+          const y = S.h-100 - ((t+i*20)%260);
+          const x = 80 + i*60 + Math.sin(t/20+i)*8;
+          ctx.font='16px serif'; ctx.fillText('💧',x,y);
+        }
+        t++; currentAnim = requestAnimationFrame(frame);
+      } frame();
+    }
+  },
+  {
+    text:"Way up high the air is cold 🥶. The water drops squish together to make <b>clouds</b> ☁️. This is called <b>condensation</b>.",
+    draw(ctx,S){
+      let t=0;
+      function frame(){
+        ctx.clearRect(0,0,S.w,S.h);
+        drawSky(ctx,S); drawSea(ctx,S,t);
+        for(let i=0;i<4;i++){
+          drawCloud(ctx, 130 + i*160 + Math.sin(t/40+i)*6, 90 + (i%2)*30, 1);
+        }
+        ctx.font='bold 14px inherit'; ctx.fillStyle='#4a2b5c';
+        ctx.fillText('💧 + 💧 + 💧 = ☁️',S.w/2-70,S.h/2);
+        t++; currentAnim = requestAnimationFrame(frame);
+      } frame();
+    }
+  },
+  {
+    text:"When the clouds get too heavy, water falls back down as <b>rain</b> 🌧️ (or snow ❄️!). This is called <b>precipitation</b>.",
+    draw(ctx,S){
+      let t=0;
+      function frame(){
+        ctx.clearRect(0,0,S.w,S.h);
+        drawSky(ctx,S); drawSea(ctx,S,t);
+        drawCloud(ctx,S.w/2,110,1.4);
+        for(let i=0;i<20;i++){
+          const x = S.w/2-90 + (i*10) + Math.sin(t/10+i)*3;
+          const y = 160 + ((t*3+i*30)%180);
+          ctx.font='16px serif'; ctx.fillText('💧',x,y);
+        }
+        t++; currentAnim = requestAnimationFrame(frame);
+      } frame();
+    }
+  },
+  {
+    text:"The rain fills up rivers 🏞️ that flow back into the ocean 🌊. Then the sun heats it again and the whole cycle starts over — forever and ever! 🔁\n\n🎉 Yay! You learned the water cycle!",
+    draw(ctx,S){
+      let t=0;
+      function frame(){
+        ctx.clearRect(0,0,S.w,S.h);
+        drawSky(ctx,S); drawSea(ctx,S,t);
+        drawSun(ctx,S.w-90,80,35,t);
+        drawCloud(ctx,300,100,1.1);
+        // rain
+        for(let i=0;i<10;i++){
+          const x = 260 + i*8; const y = 150 + ((t*3+i*20)%150);
+          ctx.font='14px serif'; ctx.fillText('💧',x,y);
+        }
+        // evaporate
+        for(let i=0;i<6;i++){
+          const y = S.h-100 - ((t*2+i*30)%220);
+          ctx.font='14px serif'; ctx.fillText('💧',500 + Math.sin(t/20+i)*6,y);
+        }
+        // arrows
+        ctx.font='bold 22px inherit'; ctx.fillStyle='#a48bff';
+        ctx.fillText('🔁',S.w/2-15,60);
+        t++; currentAnim = requestAnimationFrame(frame);
+      } frame();
+    }
+  }
+],
+
+/* ============ PLANTS ============ */
+plant: [
+  {
+    text:"Plants are magical 🌱 — they make their own food from just <b>sunlight</b> ☀️, <b>water</b> 💧, and <b>air</b> 💨. This magic is called <b>photosynthesis</b>.",
+    draw(ctx,S){
+      let t=0;
+      function frame(){
+        ctx.clearRect(0,0,S.w,S.h);
+        drawPlant(ctx,S.w/2,S.h-40, 1+Math.sin(t/30)*0.05, t);
+        drawSun(ctx,90,80,35,t);
+        ctx.font='18px serif';
+        ctx.fillText('☀️',120,140);
+        ctx.fillText('💧',S.w-100,S.h-100);
+        ctx.fillText('💨',S.w-100,120);
+        t++; currentAnim = requestAnimationFrame(frame);
+      } frame();
+    }
+  },
+  {
+    text:"Leaves are like tiny green kitchens 🍃. They catch sunlight with a special green paint called <b>chlorophyll</b> — that's why leaves are green!",
+    draw(ctx,S){
+      let t=0;
+      function frame(){
+        ctx.clearRect(0,0,S.w,S.h);
+        drawPlant(ctx,S.w/2,S.h-40, 1, t);
+        drawSun(ctx,90,80,35,t);
+        // sunbeams into leaves
+        for(let i=0;i<5;i++){
+          const p = ((t+i*20)%100)/100;
+          const x = 120 + p*(S.w/2-140);
+          const y = 100 + p*(S.h/2-100);
+          ctx.font='14px serif'; ctx.fillText('✨',x,y);
+        }
+        ctx.font='bold 14px inherit'; ctx.fillStyle='#2e7d47';
+        ctx.fillText('leaves = tiny kitchens 🍽️',S.w/2+80,140);
+        t++; currentAnim = requestAnimationFrame(frame);
+      } frame();
+    }
+  },
+  {
+    text:"Roots slurp up water from the dirt 💧🥤 and the leaves breathe in air 💨. The plant mixes them with sunshine to make <b>sugar</b> — yummy food!",
+    draw(ctx,S){
+      let t=0;
+      function frame(){
+        ctx.clearRect(0,0,S.w,S.h);
+        drawPlant(ctx,S.w/2,S.h-40, 1, t);
+        // water rising up
+        for(let i=0;i<6;i++){
+          const y = S.h-30 - ((t*2+i*30)%200);
+          ctx.font='14px serif'; ctx.fillText('💧',S.w/2-4,y);
+        }
+        ctx.font='16px serif'; ctx.fillText('🍬',S.w/2+30,S.h/2-40);
+        ctx.font='bold 14px inherit'; ctx.fillStyle='#4a2b5c';
+        ctx.fillText('water goes up → sugar comes out!',S.w/2-120,60);
+        t++; currentAnim = requestAnimationFrame(frame);
+      } frame();
+    }
+  },
+  {
+    text:"And the BEST part? Plants breathe out <b>oxygen</b> 🌬️ — the air WE breathe in! So plants keep us alive. Give a tree a hug today! 🌳💖\n\n🎉 Yay! You learned photosynthesis!",
+    draw(ctx,S){
+      let t=0;
+      function frame(){
+        ctx.clearRect(0,0,S.w,S.h);
+        drawPlant(ctx,S.w/2,S.h-40, 1+Math.sin(t/20)*0.03, t);
+        for(let i=0;i<8;i++){
+          const a = (t/30+i/8)*Math.PI*2;
+          const r = 120 + Math.sin(t/15+i)*10;
+          const x = S.w/2 + Math.cos(a)*r;
+          const y = 180 + Math.sin(a)*r*0.5;
+          ctx.font='16px serif'; ctx.fillText('💨',x-8,y);
+        }
+        ctx.font='bold 16px inherit'; ctx.fillStyle='#2e7d47';
+        ctx.fillText('thank you, plants! 💚',S.w/2-100,40);
+        t++; currentAnim = requestAnimationFrame(frame);
+      } frame();
+    }
+  }
+],
+
+/* ============ SOLAR SYSTEM ============ */
+solar: [
+  {
+    text:"Our <b>Solar System</b> 🪐 has one big star — the <b>Sun</b> ☀️ — and 8 planets that dance around it in circles called <b>orbits</b>.",
+    draw(ctx,S){
+      let t=0;
+      const planets = [
+        {n:'Mercury',c:'#b0a29a',r:60,sz:5,sp:.05},
+        {n:'Venus',  c:'#e8c07a',r:85,sz:7,sp:.035},
+        {n:'Earth',  c:'#5b8dff',r:115,sz:8,sp:.028},
+        {n:'Mars',   c:'#e07158',r:145,sz:6,sp:.022},
+        {n:'Jupiter',c:'#d9a56b',r:190,sz:16,sp:.014},
+        {n:'Saturn', c:'#e8d094',r:235,sz:14,sp:.011},
+        {n:'Uranus', c:'#9fd8e0',r:275,sz:10,sp:.009},
+        {n:'Neptune',c:'#5c7cff',r:310,sz:10,sp:.007},
+      ];
+      function frame(){
+        ctx.clearRect(0,0,S.w,S.h);
+        ctx.fillStyle='#0d0b1e'; ctx.fillRect(0,0,S.w,S.h);
+        // stars
+        for(let i=0;i<40;i++){
+          const x=(i*97)%S.w, y=(i*53)%S.h;
+          ctx.fillStyle='white'; ctx.globalAlpha=0.3+Math.sin(t/20+i)*0.3;
+          ctx.fillRect(x,y,2,2);
+        }
+        ctx.globalAlpha=1;
+        const cx=S.w/2, cy=S.h/2;
+        // orbits
+        planets.forEach(p=>{
+          ctx.beginPath(); ctx.strokeStyle='rgba(255,255,255,.1)';
+          ctx.ellipse(cx,cy,p.r,p.r*0.5,0,0,Math.PI*2); ctx.stroke();
+        });
+        // sun
+        drawSun(ctx,cx,cy,25,t);
+        // planets
+        planets.forEach((p,i)=>{
+          const a = t*p.sp + i;
+          const x = cx + Math.cos(a)*p.r;
+          const y = cy + Math.sin(a)*p.r*0.5;
+          ctx.beginPath(); ctx.arc(x,y,p.sz,0,Math.PI*2);
+          ctx.fillStyle=p.c; ctx.fill();
+          if(p.n==='Saturn'){
+            ctx.beginPath(); ctx.strokeStyle='#e8d094'; ctx.lineWidth=2;
+            ctx.ellipse(x,y,p.sz+8,3,0,0,Math.PI*2); ctx.stroke();
+          }
+        });
+        t++; currentAnim = requestAnimationFrame(frame);
+      } frame();
+    }
+  },
+  {
+    text:"The order is: <b>My Very Excellent Mother Just Served Us Noodles!</b> 🍜\n<b>M</b>ercury, <b>V</b>enus, <b>E</b>arth, <b>M</b>ars, <b>J</b>upiter, <b>S</b>aturn, <b>U</b>ranus, <b>N</b>eptune.",
+    draw(ctx,S){
+      let t=0;
+      const list = ['☀️ Sun','☿ Mercury','♀ Venus','🌍 Earth','♂ Mars','♃ Jupiter','🪐 Saturn','♅ Uranus','♆ Neptune'];
+      function frame(){
+        ctx.clearRect(0,0,S.w,S.h);
+        ctx.fillStyle='#0d0b1e'; ctx.fillRect(0,0,S.w,S.h);
+        list.forEach((n,i)=>{
+          const x = 40 + i*75 + Math.sin(t/20+i)*3;
+          const y = S.h/2 + Math.sin(t/15+i*0.7)*15;
+          ctx.font='bold 14px inherit'; ctx.fillStyle='white';
+          ctx.fillText(n,x-20,y);
+        });
+        t++; currentAnim = requestAnimationFrame(frame);
+      } frame();
+    }
+  },
+  {
+    text:"<b>Earth</b> 🌍 is our home! It's the only planet we know where there are kitties, ice cream, and YOU! 💖 A little Moon 🌙 spins around us.",
+    draw(ctx,S){
+      let t=0;
+      function frame(){
+        ctx.clearRect(0,0,S.w,S.h);
+        ctx.fillStyle='#0d0b1e'; ctx.fillRect(0,0,S.w,S.h);
+        for(let i=0;i<40;i++){ ctx.fillStyle='white'; ctx.globalAlpha=0.4+Math.sin(t/20+i)*0.3; ctx.fillRect((i*97)%S.w,(i*53)%S.h,2,2);}
+        ctx.globalAlpha=1;
+        const cx=S.w/2,cy=S.h/2;
+        // earth
+        ctx.beginPath(); ctx.arc(cx,cy,60,0,Math.PI*2); ctx.fillStyle='#5b8dff'; ctx.fill();
+        ctx.beginPath(); ctx.arc(cx-15,cy-10,20,0,Math.PI*2); ctx.fillStyle='#4caf50'; ctx.fill();
+        ctx.beginPath(); ctx.arc(cx+20,cy+15,15,0,Math.PI*2); ctx.fillStyle='#4caf50'; ctx.fill();
+        // moon
+        const a = t*0.02;
+        const mx = cx + Math.cos(a)*130, my = cy + Math.sin(a)*130;
+        ctx.beginPath(); ctx.arc(mx,my,15,0,Math.PI*2); ctx.fillStyle='#e0e0e0'; ctx.fill();
+        ctx.font='bold 14px inherit'; ctx.fillStyle='white'; ctx.fillText('🌍 Earth',cx-30,cy+90);
+        ctx.fillText('🌙 Moon',mx-25,my-25);
+        t++; currentAnim = requestAnimationFrame(frame);
+      } frame();
+    }
+  },
+  {
+    text:"<b>Jupiter</b> is the BIGGEST planet — over 1,300 Earths could fit inside! And <b>Saturn</b> has beautiful rings made of ice and rocks 💍✨\n\n🎉 Yay! You learned the solar system!",
+    draw(ctx,S){
+      let t=0;
+      function frame(){
+        ctx.clearRect(0,0,S.w,S.h);
+        ctx.fillStyle='#0d0b1e'; ctx.fillRect(0,0,S.w,S.h);
+        // jupiter
+        ctx.beginPath(); ctx.arc(200,S.h/2,90,0,Math.PI*2);
+        const g = ctx.createLinearGradient(110,0,290,0);
+        g.addColorStop(0,'#d9a56b'); g.addColorStop(.5,'#f0c98a'); g.addColorStop(1,'#a67846');
+        ctx.fillStyle=g; ctx.fill();
+        ctx.beginPath(); ctx.ellipse(220,S.h/2+20,15,8,0,0,Math.PI*2); ctx.fillStyle='#c04d3a'; ctx.fill();
+        // saturn
+        ctx.beginPath(); ctx.arc(540,S.h/2,55,0,Math.PI*2); ctx.fillStyle='#e8d094'; ctx.fill();
+        ctx.beginPath(); ctx.ellipse(540,S.h/2,90 + Math.sin(t/30)*2,15,Math.sin(t/50)*0.1,0,Math.PI*2);
+        ctx.strokeStyle='#f0e0a0'; ctx.lineWidth=6; ctx.stroke();
+        ctx.font='bold 14px inherit'; ctx.fillStyle='white';
+        ctx.fillText('🪐 Jupiter',160,S.h-30);
+        ctx.fillText('💍 Saturn',510,S.h-30);
+        t++; currentAnim = requestAnimationFrame(frame);
+      } frame();
+    }
+  }
+],
+
+/* ============ RAINBOW ============ */
+rainbow: [
+  {
+    text:"Sunlight looks white ☀️ — but it's actually made of ALL the colors mixed together! 🌈 Surprise!",
+    draw(ctx,S){
+      let t=0;
+      function frame(){
+        ctx.clearRect(0,0,S.w,S.h);
+        drawSun(ctx,S.w/2,S.h/2,60,t);
+        // beam
+        ctx.strokeStyle='rgba(255,255,180,.7)'; ctx.lineWidth=8;
+        ctx.beginPath(); ctx.moveTo(S.w/2+50,S.h/2); ctx.lineTo(S.w-40,S.h/2); ctx.stroke();
+        ctx.font='bold 14px inherit'; ctx.fillStyle='#4a2b5c';
+        ctx.fillText('white light = rainbow in disguise! 🌈',S.w/2-120,S.h-30);
+        t++; currentAnim = requestAnimationFrame(frame);
+      } frame();
+    }
+  },
+  {
+    text:"When sunlight hits a raindrop 💧, the drop acts like a tiny <b>prism</b> and splits the light into all its colors!",
+    draw(ctx,S){
+      let t=0;
+      const colors = ['#ff4d4d','#ff9933','#ffdd33','#66cc66','#3399ff','#6633cc','#cc33cc'];
+      function frame(){
+        ctx.clearRect(0,0,S.w,S.h);
+        // incoming beam
+        ctx.strokeStyle='rgba(255,255,180,.9)'; ctx.lineWidth=6;
+        ctx.beginPath(); ctx.moveTo(60,S.h/2-40); ctx.lineTo(300,S.h/2); ctx.stroke();
+        // droplet
+        ctx.beginPath(); ctx.arc(320,S.h/2,40,0,Math.PI*2);
+        ctx.fillStyle='rgba(180,220,255,.5)'; ctx.fill();
+        ctx.strokeStyle='#a0c0ff'; ctx.lineWidth=2; ctx.stroke();
+        ctx.font='24px serif'; ctx.fillText('💧',308,S.h/2+8);
+        // outgoing rainbow
+        colors.forEach((c,i)=>{
+          ctx.strokeStyle=c; ctx.lineWidth=4;
+          ctx.beginPath();
+          ctx.moveTo(360,S.h/2);
+          ctx.lineTo(S.w-40, S.h/2 - 60 + i*20 + Math.sin(t/15+i)*2);
+          ctx.stroke();
+        });
+        t++; currentAnim = requestAnimationFrame(frame);
+      } frame();
+    }
+  },
+  {
+    text:"That's why you see rainbows after it rains 🌦️ — millions of raindrops splitting the sun's light into <b>Red, Orange, Yellow, Green, Blue, Indigo, Violet</b>! 🌈\n\n🎉 Yay! You learned about rainbows!",
+    draw(ctx,S){
+      let t=0;
+      const colors = ['#ff4d4d','#ff9933','#ffdd33','#66cc66','#3399ff','#6633cc','#cc33cc'];
+      function frame(){
+        ctx.clearRect(0,0,S.w,S.h);
+        // sky
+        const sky = ctx.createLinearGradient(0,0,0,S.h);
+        sky.addColorStop(0,'#c9e5ff'); sky.addColorStop(1,'#fff2c9');
+        ctx.fillStyle=sky; ctx.fillRect(0,0,S.w,S.h);
+        // rainbow arcs
+        colors.forEach((c,i)=>{
+          ctx.beginPath(); ctx.strokeStyle=c; ctx.lineWidth=14;
+          ctx.arc(S.w/2, S.h+40, 200-i*15, Math.PI, 0);
+          ctx.stroke();
+        });
+        // ground
+        ctx.fillStyle='#8fd48f'; ctx.fillRect(0,S.h-40,S.w,40);
+        // cloud
+        drawCloud(ctx,120,80,1);
+        // sparkles
+        for(let i=0;i<8;i++){
+          const x = 100 + i*70 + Math.sin(t/20+i)*8;
+          const y = 40 + Math.sin(t/15+i*2)*10;
+          ctx.font='16px serif'; ctx.fillText('✨',x,y);
+        }
+        t++; currentAnim = requestAnimationFrame(frame);
+      } frame();
+    }
+  }
+],
+
+};
+
+/* ---------- drawing helpers ---------- */
+function drawNeuron(ctx,cx,cy,r,t,color){
+  // dendrites
+  ctx.strokeStyle = color; ctx.lineWidth=3;
+  for(let i=0;i<8;i++){
+    const a = i/8*Math.PI*2;
+    const x1 = cx + Math.cos(a)*r;
+    const y1 = cy + Math.sin(a)*r;
+    const x2 = cx + Math.cos(a)*(r+40+Math.sin(t/20+i)*4);
+    const y2 = cy + Math.sin(a)*(r+40+Math.sin(t/20+i)*4);
+    ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+    // little branch
+    ctx.beginPath(); ctx.moveTo(x2,y2);
+    ctx.lineTo(x2+Math.cos(a+0.3)*10,y2+Math.sin(a+0.3)*10); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(x2,y2);
+    ctx.lineTo(x2+Math.cos(a-0.3)*10,y2+Math.sin(a-0.3)*10); ctx.stroke();
+  }
+  // body
+  ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2);
+  const g = ctx.createRadialGradient(cx-r/3,cy-r/3,5,cx,cy,r);
+  g.addColorStop(0,'#fff'); g.addColorStop(1,color);
+  ctx.fillStyle=g; ctx.fill();
+  ctx.strokeStyle='#4a2b5c'; ctx.lineWidth=2; ctx.stroke();
+  // nucleus
+  ctx.beginPath(); ctx.arc(cx,cy,r*0.35,0,Math.PI*2);
+  ctx.fillStyle='rgba(74,43,92,.3)'; ctx.fill();
+  // axon (to the right)
+  ctx.strokeStyle=color; ctx.lineWidth=r*0.35;
+  ctx.beginPath(); ctx.moveTo(cx+r-5,cy);
+  ctx.bezierCurveTo(cx+r+80,cy-10,cx+r+150,cy+10,cx+r+220,cy);
+  ctx.stroke();
+  // face on cell (cute!)
+  ctx.fillStyle='#4a2b5c';
+  ctx.beginPath(); ctx.arc(cx-r*0.25,cy-r*0.1,3,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(cx+r*0.25,cy-r*0.1,3,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(cx,cy+r*0.15,r*0.15,0,Math.PI); ctx.stroke();
+}
+function drawHeart(ctx,cx,cy,size,color){
+  ctx.save(); ctx.translate(cx,cy); ctx.scale(size/100,size/100);
+  ctx.beginPath();
+  ctx.moveTo(0,30);
+  ctx.bezierCurveTo(0,-20,-60,-20,-60,20);
+  ctx.bezierCurveTo(-60,60,0,80,0,90);
+  ctx.bezierCurveTo(0,80,60,60,60,20);
+  ctx.bezierCurveTo(60,-20,0,-20,0,30);
+  const g = ctx.createRadialGradient(-15,0,5,0,20,80);
+  g.addColorStop(0,'#ffb6c8'); g.addColorStop(1,color);
+  ctx.fillStyle=g; ctx.fill();
+  ctx.strokeStyle='#a01e4a'; ctx.lineWidth=3; ctx.stroke();
+  // cute face
+  ctx.fillStyle='white';
+  ctx.beginPath(); ctx.arc(-18,15,5,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(18,15,5,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='#4a2b5c';
+  ctx.beginPath(); ctx.arc(-18,17,2.5,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(18,17,2.5,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(0,32,6,0,Math.PI); ctx.stroke();
+  ctx.restore();
+}
+function drawSun(ctx,cx,cy,r,t){
+  ctx.save(); ctx.translate(cx,cy); ctx.rotate(t/60);
+  for(let i=0;i<12;i++){
+    ctx.rotate(Math.PI*2/12);
+    ctx.beginPath(); ctx.moveTo(r+5,0); ctx.lineTo(r+18,0);
+    ctx.strokeStyle='#ffcc33'; ctx.lineWidth=4; ctx.stroke();
+  }
+  ctx.restore();
+  ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2);
+  const g = ctx.createRadialGradient(cx-r/3,cy-r/3,3,cx,cy,r);
+  g.addColorStop(0,'#fffbe0'); g.addColorStop(1,'#ffcc33');
+  ctx.fillStyle=g; ctx.fill();
+  // face
+  ctx.fillStyle='#a06400';
+  ctx.beginPath(); ctx.arc(cx-r*0.3,cy-r*0.1,r*0.09,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(cx+r*0.3,cy-r*0.1,r*0.09,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(cx,cy+r*0.15,r*0.25,0,Math.PI);
+  ctx.strokeStyle='#a06400'; ctx.lineWidth=2; ctx.stroke();
+}
+function drawSky(ctx,S){
+  const g = ctx.createLinearGradient(0,0,0,S.h);
+  g.addColorStop(0,'#bde0ff'); g.addColorStop(1,'#fff2c9');
+  ctx.fillStyle=g; ctx.fillRect(0,0,S.w,S.h);
+}
+function drawSea(ctx,S,t){
+  ctx.fillStyle='#5aa8e6'; ctx.fillRect(0,S.h-100,S.w,100);
+  ctx.strokeStyle='#88c4f5'; ctx.lineWidth=2;
+  for(let j=0;j<3;j++){
+    ctx.beginPath();
+    for(let x=0;x<=S.w;x+=10){
+      const y = S.h-100 + j*20 + Math.sin((x+t*2)/30+j)*4;
+      x===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+    }
+    ctx.stroke();
+  }
+}
+function drawCloud(ctx,cx,cy,scale){
+  ctx.save(); ctx.translate(cx,cy); ctx.scale(scale,scale);
+  ctx.fillStyle='white'; ctx.strokeStyle='#dcd0ff'; ctx.lineWidth=2;
+  [[-30,0,25],[0,-15,30],[25,-5,22],[15,10,20],[-15,10,22]].forEach(p=>{
+    ctx.beginPath(); ctx.arc(p[0],p[1],p[2],0,Math.PI*2); ctx.fill(); ctx.stroke();
+  });
+  ctx.restore();
+}
+function drawPlant(ctx,cx,gy,scale,t){
+  // dirt
+  ctx.fillStyle='#7a4a2b'; ctx.beginPath();
+  ctx.ellipse(cx,gy,120,15,0,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='#5a3620'; ctx.fillRect(cx-120,gy,240,25);
+  // roots
+  ctx.strokeStyle='#5a3620'; ctx.lineWidth=3;
+  for(let i=-2;i<=2;i++){
+    ctx.beginPath(); ctx.moveTo(cx,gy); ctx.lineTo(cx+i*20, gy+30+Math.abs(i)*5); ctx.stroke();
+  }
+  ctx.save(); ctx.translate(cx,gy); ctx.scale(scale,scale);
+  // stem
+  ctx.strokeStyle='#3fa25c'; ctx.lineWidth=8;
+  ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(0,-180); ctx.stroke();
+  // leaves
+  for(let i=0;i<4;i++){
+    const y = -40 - i*40;
+    const side = i%2?1:-1;
+    const sway = Math.sin(t/25+i)*4;
+    ctx.save(); ctx.translate(0,y); ctx.rotate(side*0.6 + sway*0.02);
+    ctx.beginPath(); ctx.ellipse(side*30,0,35,15,0,0,Math.PI*2);
+    ctx.fillStyle='#4caf50'; ctx.fill();
+    ctx.strokeStyle='#2e7d47'; ctx.lineWidth=2; ctx.stroke();
+    ctx.restore();
+  }
+  // flower on top
+  const petals = 6;
+  for(let i=0;i<petals;i++){
+    const a = i/petals*Math.PI*2 + t/40;
+    ctx.beginPath();
+    ctx.ellipse(Math.cos(a)*18, -180+Math.sin(a)*18, 14,10,a,0,Math.PI*2);
+    ctx.fillStyle='#ff8ac1'; ctx.fill();
+    ctx.strokeStyle='#a04a70'; ctx.lineWidth=1.5; ctx.stroke();
+  }
+  ctx.beginPath(); ctx.arc(0,-180,10,0,Math.PI*2);
+  ctx.fillStyle='#ffe066'; ctx.fill();
+  ctx.strokeStyle='#a08030'; ctx.stroke();
+  ctx.restore();
+}
+</script>
+</body>
+</html>
